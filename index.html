@@ -1,1 +1,3220 @@
 
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🐻 こっそり気持ちを届けて 🍓</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&family=Pacifico&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    min-height: 100vh;
+    background: linear-gradient(160deg, #fff5f8 0%, #fce8f0 40%, #f8e8ff 100%);
+    font-family: 'Zen Maru Gothic', sans-serif;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  /* 背景の浮かぶお菓子 */
+  .petal {
+    position: fixed;
+    font-size: 20px;
+    animation: floatSweet linear infinite;
+    pointer-events: none;
+    opacity: 0.65;
+  }
+  @keyframes floatSweet {
+    0%   { transform: translateY(110vh) rotate(0deg)   scale(0.8); opacity: 0; }
+    8%   { opacity: 0.7; }
+    92%  { opacity: 0.6; }
+    100% { transform: translateY(-10vh)  rotate(200deg) scale(1.1); opacity: 0; }
+  }
+
+  /* タイトル */
+  .title {
+    font-family: 'Pacifico', cursive;
+    font-size: 1.4rem;
+    color: #e8748a;
+    text-align: center;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+    text-shadow: 0 2px 8px rgba(232,116,138,0.2);
+  }
+  .subtitle {
+    font-size: 0.75rem;
+    color: #c9a0b0;
+    text-align: center;
+    margin-bottom: 24px;
+    letter-spacing: 2px;
+  }
+
+  /* メインステージ */
+  .stage {
+    position: relative;
+    width: 320px;
+    height: 320px;
+  }
+
+  /* イチゴケーキ */
+  .cake {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    height: 180px;
+  }
+
+  /* クマのコンテナ */
+  .bear-container {
+    position: absolute;
+    width: 120px;
+    height: 140px;
+    cursor: pointer;
+    z-index: 10;
+    transition: left 0.55s cubic-bezier(0.34,1.56,0.64,1), top 0.55s cubic-bezier(0.34,1.56,0.64,1), bottom 0.55s cubic-bezier(0.34,1.56,0.64,1);
+    animation: bearIdle 3s ease-in-out infinite;
+  }
+  @keyframes bearIdle {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    25% { transform: translateY(-5px) rotate(-1.5deg); }
+    75% { transform: translateY(-3px) rotate(1.5deg); }
+  }
+
+  .bear-container.peeking {
+    animation: bearPeek 0.5s ease-out forwards;
+  }
+  @keyframes bearPeek {
+    0% { transform: translateY(30px) scale(0.9); }
+    60% { transform: translateY(-8px) scale(1.05); }
+    100% { transform: translateY(0) scale(1); }
+  }
+  .bear-container.shy {
+    animation: bearShy 0.7s ease-out forwards;
+  }
+  @keyframes bearShy {
+    0%   { transform: rotate(0deg) scale(1); }
+    20%  { transform: rotate(-7deg) scale(0.93); }
+    50%  { transform: rotate(6deg) scale(0.96); }
+    75%  { transform: rotate(-3deg) scale(0.98); }
+    100% { transform: rotate(0deg) scale(1); }
+  }
+  .bear-container.happy {
+    animation: bearHappy 0.9s cubic-bezier(0.34,1.56,0.64,1) forwards;
+  }
+  @keyframes bearHappy {
+    0%   { transform: scale(1) translateY(0); }
+    25%  { transform: scale(1.18) translateY(-14px) rotate(3deg); }
+    50%  { transform: scale(1.12) translateY(-10px) rotate(-2deg); }
+    75%  { transform: scale(0.96) translateY(3px); }
+    100% { transform: scale(1) translateY(0); }
+  }
+
+  /* SVGクマ */
+  .bear-svg {
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 6px 16px rgba(200,100,120,0.3)) drop-shadow(0 2px 4px rgba(180,80,100,0.2));
+  }
+
+  /* チーク（恥ずかしそうな赤み）*/
+  .bear-cheek {
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+  .bear-container.shy .bear-cheek,
+  .bear-container.happy .bear-cheek {
+    opacity: 1;
+  }
+
+  /* メッセージバブル */
+  .message-bubble {
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%) scale(0);
+    background: linear-gradient(145deg, rgba(255,255,255,0.98), rgba(255,245,250,0.96));
+    border: 2.5px solid #f4b8c8;
+    border-radius: 22px;
+    padding: 10px 18px;
+    white-space: nowrap;
+    font-size: 0.85rem;
+    color: #c2607a;
+    box-shadow: 0 6px 24px rgba(232,116,138,0.22), inset 0 1px 0 rgba(255,255,255,0.9);
+    transition: transform 0.35s cubic-bezier(0.34, 1.65, 0.64, 1);
+    z-index: 20;
+    pointer-events: none;
+  }
+  .message-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -9px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 10px solid #f4b8c8;
+  }
+  .message-bubble.show {
+    transform: translateX(-50%) scale(1);
+  }
+
+  /* タップヒント */
+  .tap-hint {
+    position: absolute;
+    bottom: -36px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.75rem;
+    color: #c2607a;
+    font-weight: 700;
+    text-align: center;
+    letter-spacing: 1px;
+    animation: pulse 2s ease-in-out infinite;
+    white-space: nowrap;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+  }
+
+  /* ハートパーティクル */
+  .heart-particle {
+    position: fixed;
+    pointer-events: none;
+    font-size: 20px;
+    animation: heartFloat 1.5s ease-out forwards;
+  }
+  @keyframes heartFloat {
+    0% { transform: translateY(0) scale(0); opacity: 1; }
+    50% { transform: translateY(-60px) scale(1.2); opacity: 1; }
+    100% { transform: translateY(-120px) scale(0.5); opacity: 0; }
+  }
+
+  /* メッセージ入力エリア */
+  .input-section {
+    margin-top: 48px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 300px;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.6s ease 0.3s;
+  }
+  .input-section.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .input-label {
+    font-size: 0.72rem;
+    color: #c9a0b0;
+    letter-spacing: 1.5px;
+  }
+  .message-input {
+    width: 100%;
+    padding: 12px 18px;
+    border: 2px solid #f4c0d0;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.8);
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-size: 0.85rem;
+    color: #c26080;
+    outline: none;
+    text-align: center;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    resize: none;
+    height: 60px;
+  }
+  .message-input::placeholder { color: #e0b0c0; }
+  .message-input:focus {
+    border-color: #e888a0;
+    box-shadow: 0 0 0 4px rgba(232,136,160,0.15);
+  }
+
+  /* 送るボタン */
+  .send-btn {
+    padding: 12px 32px;
+    background: linear-gradient(135deg, #f4778a, #e85a80);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 20px rgba(232,90,128,0.35);
+  }
+  .send-btn:hover {
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 8px 24px rgba(232,90,128,0.4);
+  }
+  .send-btn:active {
+    transform: scale(0.97);
+  }
+
+  /* ラブレターオーバーレイ */
+  .letter-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(255,230,240,0.85);
+    backdrop-filter: blur(8px);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+  .letter-overlay.open {
+    display: flex;
+    animation: overlayIn 0.4s ease;
+  }
+  @keyframes overlayIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .letter-envelope {
+    width: 280px;
+    position: relative;
+    animation: letterOpen 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+  @keyframes letterOpen {
+    0% { transform: scale(0.3) rotate(-10deg); opacity: 0; }
+    60% { transform: scale(1.08) rotate(2deg); opacity: 1; }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+  }
+
+  .letter-card {
+    background: linear-gradient(160deg, #fffdf8 0%, #fff5f0 60%, #ffeef6 100%);
+    border-radius: 24px;
+    padding: 32px 28px;
+    box-shadow: 0 8px 40px rgba(220,80,110,0.18), 0 2px 8px rgba(220,80,110,0.1), inset 0 1px 0 rgba(255,255,255,0.9);
+    border: 2px solid #fad0dc;
+    text-align: center;
+    position: relative;
+  }
+  /* 紙のテクスチャ風ライン */
+  .letter-card::after {
+    content: '';
+    position: absolute;
+    inset: 12px;
+    border-radius: 16px;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 22px,
+      rgba(240,180,200,0.12) 22px,
+      rgba(240,180,200,0.12) 23px
+    );
+    pointer-events: none;
+  }
+  .letter-card::before {
+    content: '💌';
+    position: absolute;
+    top: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 36px;
+    filter: drop-shadow(0 4px 8px rgba(232,90,128,0.3));
+  }
+  .letter-to {
+    font-size: 0.7rem;
+    color: #d4a0b0;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+    margin-top: 8px;
+  }
+  .letter-content {
+    font-size: 1rem;
+    color: #c2607a;
+    line-height: 1.8;
+    min-height: 80px;
+    padding: 16px;
+    background: #fff8fa;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    word-break: break-all;
+  }
+  .letter-from {
+    font-size: 0.7rem;
+    color: #d4a0b0;
+    letter-spacing: 1px;
+    margin-bottom: 20px;
+  }
+  .letter-close {
+    padding: 10px 28px;
+    background: linear-gradient(135deg, #f4c0d0, #e888a8);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  .letter-close:hover { transform: scale(1.05); }
+
+  .letter-hearts {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    border-radius: 20px;
+  }
+  .letter-heart {
+    position: absolute;
+    font-size: 14px;
+    animation: letterHeart 3s ease-in-out infinite;
+    opacity: 0;
+  }
+  @keyframes letterHeart {
+    0% { transform: translateY(20px) scale(0); opacity: 0; }
+    50% { opacity: 0.6; }
+    100% { transform: translateY(-100px) scale(1); opacity: 0; }
+  }
+
+  /* 進行状況ドット */
+  .progress-dots {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+  }
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #f4c0d0;
+    transition: background 0.3s, transform 0.3s;
+  }
+  .dot.active {
+    background: #e85a80;
+    transform: scale(1.3);
+  }
+
+  /* ラブレターヒント */
+  .letter-hint {
+    font-size: 0.72rem;
+    color: #c9a0b0;
+    letter-spacing: 1px;
+    margin-bottom: 14px;
+    margin-top: -4px;
+  }
+
+  /* 保存・消去ボタン行 */
+  .letter-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 14px;
+  }
+  .action-btn {
+    padding: 10px 22px;
+    border: none;
+    border-radius: 50px;
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: transform 0.18s, box-shadow 0.18s;
+    letter-spacing: 0.5px;
+  }
+  .save-btn {
+    background: linear-gradient(135deg, #a8e0c8, #68c8a0);
+    color: white;
+    box-shadow: 0 4px 14px rgba(80,180,140,0.35);
+  }
+  .save-btn:hover { transform: translateY(-2px) scale(1.04); box-shadow: 0 6px 18px rgba(80,180,140,0.45); }
+  .capsule-btn {
+    background: linear-gradient(135deg, #b8c8f8, #8898e8);
+    color: white;
+    box-shadow: 0 4px 14px rgba(100,120,220,0.35);
+  }
+  .capsule-btn:hover { transform: translateY(-2px) scale(1.04); box-shadow: 0 6px 18px rgba(100,120,220,0.45); }
+  .delete-btn {
+    background: linear-gradient(135deg, #f0c0c8, #e08090);
+    color: white;
+    box-shadow: 0 4px 14px rgba(200,80,100,0.3);
+  }
+  .delete-btn:hover { transform: translateY(-2px) scale(1.04); box-shadow: 0 6px 18px rgba(200,80,100,0.4); }
+  .action-btn:active { transform: scale(0.96); }
+
+  /* メールボックスボタン（右下・コーヒーの上） */
+  .mailbox-btn {
+    position: fixed;
+    bottom: 130px;
+    right: 22px;
+    background: linear-gradient(135deg, #fce8f0, #f4b8cc);
+    border: 2px solid #f0a0bc;
+    border-radius: 50px;
+    padding: 8px 14px;
+    font-size: 1rem;
+    cursor: pointer;
+    z-index: 60;
+    box-shadow: 0 4px 16px rgba(232,100,140,0.3);
+    transition: transform 0.2s;
+    color: #c2607a;
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-weight: 700;
+  }
+  .mailbox-btn:hover { transform: scale(1.08); }
+
+  /* 保存済みボックス */
+  .saved-box {
+    position: fixed;
+    bottom: 170px;
+    right: 16px;
+    width: 260px;
+    max-height: 340px;
+    background: rgba(255,255,255,0.97);
+    border: 2px solid #f4b8c8;
+    border-radius: 20px;
+    box-shadow: 0 12px 40px rgba(232,100,140,0.2);
+    z-index: 70;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    animation: slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .saved-box.open { display: flex; }
+  @keyframes slideUp {
+    from { transform: translateY(20px) scale(0.95); opacity: 0; }
+    to   { transform: translateY(0)    scale(1);    opacity: 1; }
+  }
+  .saved-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #fce8f0, #f8e0f8);
+    font-size: 0.82rem;
+    color: #c2607a;
+    font-weight: 700;
+    letter-spacing: 1px;
+    border-bottom: 1px solid #f4d0dc;
+  }
+  .saved-close {
+    background: none;
+    border: none;
+    font-size: 1rem;
+    color: #d4a0b0;
+    cursor: pointer;
+    line-height: 1;
+    padding: 2px 4px;
+    transition: color 0.2s;
+  }
+  .saved-close:hover { color: #e85a80; }
+  .saved-list {
+    overflow-y: auto;
+    flex: 1;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .saved-list::-webkit-scrollbar { width: 4px; }
+  .saved-list::-webkit-scrollbar-thumb { background: #f4c0d0; border-radius: 4px; }
+  .saved-item {
+    background: #fff8fa;
+    border: 1.5px solid #f4d0dc;
+    border-radius: 12px;
+    padding: 10px 12px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    animation: itemIn 0.3s ease;
+  }
+  @keyframes itemIn {
+    from { transform: scale(0.9); opacity: 0; }
+    to   { transform: scale(1);   opacity: 1; }
+  }
+  .saved-item-text {
+    flex: 1;
+    font-size: 0.8rem;
+    color: #c2607a;
+    line-height: 1.5;
+    word-break: break-all;
+  }
+  .saved-item-date {
+    font-size: 0.62rem;
+    color: #d4a0b0;
+    margin-top: 4px;
+  }
+  .saved-item-del {
+    background: none;
+    border: none;
+    color: #e0a0b0;
+    cursor: pointer;
+    font-size: 0.9rem;
+    padding: 2px;
+    flex-shrink: 0;
+    transition: color 0.2s, transform 0.2s;
+  }
+  .saved-item-del:hover { color: #e85a80; transform: scale(1.2); }
+  .saved-empty {
+    text-align: center;
+    padding: 20px;
+    font-size: 0.78rem;
+    color: #d4a0b0;
+    letter-spacing: 1px;
+  }
+
+  /* トースト通知 */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: rgba(80,60,70,0.85);
+    color: white;
+    padding: 10px 24px;
+    border-radius: 50px;
+    font-size: 0.82rem;
+    letter-spacing: 1px;
+    z-index: 200;
+    pointer-events: none;
+    transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.4s;
+    opacity: 0;
+    white-space: nowrap;
+  }
+  .toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+
+  /* ===== タイムカプセル演出 ===== */
+  .capsule-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at center, rgba(20,10,50,0.97) 0%, rgba(5,0,20,0.99) 100%);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 0;
+  }
+  .capsule-overlay.open { display: flex; animation: capsuleFadeIn 0.6s ease; }
+  @keyframes capsuleFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* 星空 */
+  /* 金色流れ星キャンバス */
+  #capsuleGoldStarCanvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .capsule-stars {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .capsule-star {
+    position: absolute;
+    border-radius: 50%;
+    background: white;
+    animation: starTwinkle ease-in-out infinite;
+  }
+  @keyframes starTwinkle {
+    0%, 100% { opacity: 0.2; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1.2); }
+  }
+
+  /* カプセルの瓶アニメ */
+  .capsule-bottle-wrap {
+    position: relative;
+    width: 120px;
+    height: 180px;
+    margin-bottom: 28px;
+    animation: capsuleFloat 4s ease-in-out infinite;
+  }
+  @keyframes capsuleFloat {
+    0%, 100% { transform: translateY(0) rotate(-3deg); }
+    50% { transform: translateY(-12px) rotate(3deg); }
+  }
+  .capsule-glow {
+    position: absolute;
+    inset: -20px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(180,160,255,0.25) 0%, transparent 70%);
+    animation: glowPulse 3s ease-in-out infinite;
+  }
+  @keyframes glowPulse {
+    0%, 100% { opacity: 0.5; transform: scale(0.9); }
+    50% { opacity: 1; transform: scale(1.1); }
+  }
+
+  /* タイムカプセルテキスト */
+  .capsule-title {
+    font-family: 'Pacifico', cursive;
+    font-size: 1.3rem;
+    color: #c8b8f8;
+    letter-spacing: 2px;
+    text-align: center;
+    margin-bottom: 10px;
+    text-shadow: 0 0 20px rgba(180,160,255,0.8);
+    position: relative;
+    z-index: 2;
+  }
+  .capsule-subtitle {
+    font-size: 0.75rem;
+    color: #9888c8;
+    text-align: center;
+    letter-spacing: 3px;
+    margin-bottom: 24px;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* 日付カード */
+  .capsule-date-card {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(180,160,255,0.3);
+    border-radius: 16px;
+    padding: 14px 28px;
+    text-align: center;
+    margin-bottom: 24px;
+    backdrop-filter: blur(4px);
+    position: relative;
+    z-index: 2;
+  }
+  .capsule-date-label {
+    font-size: 0.65rem;
+    color: #8878a8;
+    letter-spacing: 3px;
+    margin-bottom: 6px;
+  }
+  .capsule-date-value {
+    font-size: 1.1rem;
+    color: #e8d8ff;
+    letter-spacing: 1px;
+    font-weight: 700;
+  }
+  .capsule-date-sub {
+    font-size: 0.68rem;
+    color: #a898c8;
+    margin-top: 4px;
+    letter-spacing: 1px;
+  }
+
+  /* メッセージプレビュー */
+  .capsule-msg-preview {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(180,160,255,0.2);
+    border-radius: 12px;
+    padding: 12px 20px;
+    max-width: 260px;
+    text-align: center;
+    font-size: 0.82rem;
+    color: #c8b8e8;
+    line-height: 1.7;
+    margin-bottom: 28px;
+    font-style: italic;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* ボタン */
+  .capsule-close-btn {
+    padding: 12px 36px;
+    background: linear-gradient(135deg, #7868c8, #5848a8);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(120,100,200,0.5);
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+    z-index: 2;
+  }
+  .capsule-close-btn:hover {
+    transform: translateY(-2px) scale(1.04);
+    box-shadow: 0 8px 28px rgba(120,100,200,0.65);
+  }
+
+  /* タイムカプセルリストのアイテム */
+  .capsule-item {
+    background: linear-gradient(135deg, #f0ecff, #e8e0ff);
+    border: 1.5px solid #c8b8f0;
+    border-radius: 12px;
+    padding: 10px 12px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    animation: itemIn 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .capsule-item::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: linear-gradient(#8898e8, #b8a8f8);
+    border-radius: 4px 0 0 4px;
+  }
+  .capsule-item.unlocked {
+    background: linear-gradient(135deg, #fff8e8, #ffecd8);
+    border-color: #f8c878;
+  }
+  .capsule-item.unlocked::before {
+    background: linear-gradient(#f8b848, #f8d878);
+  }
+  .capsule-status {
+    font-size: 0.62rem;
+    padding: 2px 7px;
+    border-radius: 20px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .status-sealed {
+    background: rgba(120,100,200,0.15);
+    color: #7868c8;
+  }
+  .status-open {
+    background: rgba(240,180,60,0.2);
+    color: #b07820;
+  }
+
+  /* 開封モーダル */
+  .capsule-open-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(20,10,50,0.92);
+    backdrop-filter: blur(12px);
+    z-index: 250;
+    align-items: center;
+    justify-content: center;
+  }
+  .capsule-open-modal.show { display: flex; animation: capsuleFadeIn 0.4s ease; }
+  .capsule-open-card {
+    background: white;
+    border-radius: 24px;
+    padding: 36px 28px;
+    max-width: 300px;
+    width: 88vw;
+    text-align: center;
+    box-shadow: 0 24px 80px rgba(120,100,200,0.4);
+    animation: capsuleCardIn 0.5s cubic-bezier(0.34,1.56,0.64,1);
+    position: relative;
+    overflow: hidden;
+  }
+  @keyframes capsuleCardIn {
+    from { transform: scale(0.6) rotate(-5deg); opacity: 0; }
+    to { transform: scale(1) rotate(0deg); opacity: 1; }
+  }
+  .capsule-open-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #8898e8, #c8b8f8, #f8a8c8);
+  }
+  .capsule-open-emoji { font-size: 3rem; margin-bottom: 12px; display: block; }
+  .capsule-open-title {
+    font-family: 'Pacifico', cursive;
+    font-size: 1rem;
+    color: #7868c8;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+  }
+  .capsule-open-days {
+    font-size: 0.7rem;
+    color: #a898c8;
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+  }
+  .capsule-open-msg {
+    background: #f8f4ff;
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 0.95rem;
+    color: #5848a8;
+    line-height: 1.8;
+    margin-bottom: 16px;
+    word-break: break-all;
+    border: 1px solid #e0d8f8;
+  }
+  .capsule-open-question {
+    font-size: 0.82rem;
+    color: #a888b8;
+    margin-bottom: 20px;
+    line-height: 1.7;
+  }
+  .capsule-open-btns {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .capsule-courage-btn {
+    padding: 11px 22px;
+    background: linear-gradient(135deg, #f07888, #e85070);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-size: 0.82rem;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(230,80,110,0.4);
+    transition: transform 0.2s;
+    letter-spacing: 0.5px;
+  }
+  .capsule-courage-btn:hover { transform: translateY(-2px) scale(1.04); }
+  .capsule-keep-btn {
+    padding: 11px 22px;
+    background: linear-gradient(135deg, #a8e0d0, #68c8b0);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-size: 0.82rem;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(80,180,150,0.35);
+    transition: transform 0.2s;
+    letter-spacing: 0.5px;
+  }
+  .capsule-keep-btn:hover { transform: translateY(-2px) scale(1.04); }
+  .capsule-modal-close {
+    font-size: 0.72rem;
+    color: #c0b0d0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-top: 12px;
+    letter-spacing: 1px;
+    font-family: 'Zen Maru Gothic', sans-serif;
+  }
+  .capsule-modal-close:hover { color: #9888b8; }
+
+  /* 勇気確認画面 */
+  .courage-check-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(255,230,240,0.92);
+    backdrop-filter: blur(14px);
+    z-index: 260;
+    align-items: center;
+    justify-content: center;
+  }
+  .courage-check-modal.show { display: flex; animation: capsuleFadeIn 0.4s ease; }
+  .courage-card {
+    background: white;
+    border-radius: 24px;
+    padding: 36px 28px;
+    max-width: 300px;
+    width: 88vw;
+    text-align: center;
+    box-shadow: 0 24px 80px rgba(232,90,128,0.35);
+    animation: capsuleCardIn 0.5s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .courage-emoji { font-size: 3.5rem; margin-bottom: 16px; display: block;
+    animation: courageBounce 0.6s ease 0.3s both;
+  }
+  @keyframes courageBounce {
+    0% { transform: scale(0); }
+    60% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+  }
+  .courage-title {
+    font-family: 'Pacifico', cursive;
+    font-size: 1.1rem;
+    color: #e85070;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+  }
+  .courage-msg {
+    font-size: 0.82rem;
+    color: #c06080;
+    line-height: 1.8;
+    margin-bottom: 24px;
+  }
+  .courage-step {
+    background: linear-gradient(135deg, #fff0f5, #ffe0ed);
+    border-radius: 14px;
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    border: 1px solid #f8c0d0;
+  }
+  .courage-step-label {
+    font-size: 0.65rem;
+    color: #d4a0b0;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+  }
+  .courage-step-text {
+    font-size: 0.88rem;
+    color: #c85070;
+    font-weight: 700;
+    line-height: 1.5;
+  }
+  .courage-done-btn {
+    padding: 12px 32px;
+    background: linear-gradient(135deg, #f07888, #e85070);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-size: 0.85rem;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(230,80,110,0.4);
+    transition: transform 0.2s;
+    letter-spacing: 1px;
+    width: 100%;
+    margin-bottom: 8px;
+  }
+  .courage-done-btn:hover { transform: translateY(-2px) scale(1.02); }
+  .courage-later-btn {
+    font-size: 0.72rem;
+    color: #c0a0b0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: 'Zen Maru Gothic', sans-serif;
+    letter-spacing: 1px;
+  }
+  .courage-later-btn:hover { color: #e85070; }
+
+  /* ===== クマ回転・メッセージ受取り演出 ===== */
+  .spin-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(255,240,248,0.92);
+    backdrop-filter: blur(10px);
+    z-index: 150;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 24px;
+  }
+  .spin-overlay.active { display: flex; }
+
+  .spin-bear-wrap {
+    position: relative;
+    width: 180px;
+    height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* 回転リング */
+  .spin-ring {
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    background: transparent;
+    animation: ringRotate 1.4s linear infinite, rainbowRing1 3s linear infinite;
+    /* conic-gradient で虹色リング */
+    mask: radial-gradient(farthest-side, transparent calc(100% - 5px), black calc(100% - 5px));
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 5px), black calc(100% - 5px));
+  }
+  .spin-ring-2 {
+    position: absolute;
+    inset: 6px;
+    border-radius: 50%;
+    background: transparent;
+    animation: ringRotate 2s linear infinite reverse, rainbowRing2 3s linear infinite;
+    mask: radial-gradient(farthest-side, transparent calc(100% - 4px), black calc(100% - 4px));
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 4px), black calc(100% - 4px));
+  }
+  @keyframes ringRotate {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+  @keyframes rainbowRing1 {
+    0%   { background: conic-gradient(#ff6eb4, #ff9a3c, #ffe04b, #6be86b, #4bc8ff, #a06bff, #ff6eb4); filter: drop-shadow(0 0 8px #ff9a3c); }
+    16%  { background: conic-gradient(#ff9a3c, #ffe04b, #6be86b, #4bc8ff, #a06bff, #ff6eb4, #ff9a3c); filter: drop-shadow(0 0 8px #ffe04b); }
+    33%  { background: conic-gradient(#ffe04b, #6be86b, #4bc8ff, #a06bff, #ff6eb4, #ff9a3c, #ffe04b); filter: drop-shadow(0 0 8px #6be86b); }
+    50%  { background: conic-gradient(#6be86b, #4bc8ff, #a06bff, #ff6eb4, #ff9a3c, #ffe04b, #6be86b); filter: drop-shadow(0 0 8px #4bc8ff); }
+    66%  { background: conic-gradient(#4bc8ff, #a06bff, #ff6eb4, #ff9a3c, #ffe04b, #6be86b, #4bc8ff); filter: drop-shadow(0 0 8px #a06bff); }
+    83%  { background: conic-gradient(#a06bff, #ff6eb4, #ff9a3c, #ffe04b, #6be86b, #4bc8ff, #a06bff); filter: drop-shadow(0 0 8px #ff6eb4); }
+    100% { background: conic-gradient(#ff6eb4, #ff9a3c, #ffe04b, #6be86b, #4bc8ff, #a06bff, #ff6eb4); filter: drop-shadow(0 0 8px #ff9a3c); }
+  }
+  @keyframes rainbowRing2 {
+    0%   { background: conic-gradient(#a06bff, #ff6eb4, #ff9a3c, #ffe04b, #6be86b, #4bc8ff, #a06bff); filter: drop-shadow(0 0 6px #a06bff); }
+    16%  { background: conic-gradient(#4bc8ff, #a06bff, #ff6eb4, #ff9a3c, #ffe04b, #6be86b, #4bc8ff); filter: drop-shadow(0 0 6px #4bc8ff); }
+    33%  { background: conic-gradient(#6be86b, #4bc8ff, #a06bff, #ff6eb4, #ff9a3c, #ffe04b, #6be86b); filter: drop-shadow(0 0 6px #6be86b); }
+    50%  { background: conic-gradient(#ffe04b, #6be86b, #4bc8ff, #a06bff, #ff6eb4, #ff9a3c, #ffe04b); filter: drop-shadow(0 0 6px #ffe04b); }
+    66%  { background: conic-gradient(#ff9a3c, #ffe04b, #6be86b, #4bc8ff, #a06bff, #ff6eb4, #ff9a3c); filter: drop-shadow(0 0 6px #ff9a3c); }
+    83%  { background: conic-gradient(#ff6eb4, #ff9a3c, #ffe04b, #6be86b, #4bc8ff, #a06bff, #ff6eb4); filter: drop-shadow(0 0 6px #ff6eb4); }
+    100% { background: conic-gradient(#a06bff, #ff6eb4, #ff9a3c, #ffe04b, #6be86b, #4bc8ff, #a06bff); filter: drop-shadow(0 0 6px #a06bff); }
+  }
+
+  /* クマSVG本体の回転 */
+  .spin-bear-svg {
+    width: 110px;
+    height: 165px;
+    filter: drop-shadow(0 4px 16px rgba(232,100,140,0.3));
+    animation: bearSpin 1.4s cubic-bezier(0.4,0,0.6,1) infinite;
+    transform-origin: center center;
+  }
+  @keyframes bearSpin {
+    0%   { transform: rotate(0deg)   scale(1); }
+    25%  { transform: rotate(90deg)  scale(1.08); }
+    50%  { transform: rotate(180deg) scale(1); }
+    75%  { transform: rotate(270deg) scale(1.08); }
+    100% { transform: rotate(360deg) scale(1); }
+  }
+
+  /* 回転中に飛び散るハート */
+  .spin-heart {
+    position: absolute;
+    pointer-events: none;
+    animation: spinHeartFly 1.2s ease-out forwards;
+    font-size: 18px;
+  }
+  @keyframes spinHeartFly {
+    0%   { transform: translate(0,0) scale(0) rotate(0deg); opacity: 1; }
+    60%  { opacity: 1; }
+    100% { transform: translate(var(--tx), var(--ty)) scale(1) rotate(180deg); opacity: 0; }
+  }
+  /* 金色の星 - 光沢グロー */
+  .spin-star {
+    position: absolute;
+    pointer-events: none;
+    animation: spinStarFly var(--dur) ease-out forwards;
+    filter:
+      drop-shadow(0 0 3px #fff8c0)
+      drop-shadow(0 0 8px rgba(255,200,20,1))
+      drop-shadow(0 0 18px rgba(220,150,0,0.8));
+  }
+  @keyframes spinStarFly {
+    0%   { transform: translate(0,0) scale(0) rotate(0deg); opacity: 1; }
+    20%  { filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 12px #ffd700) drop-shadow(0 0 28px rgba(255,180,0,0.9)); }
+    30%  { transform: translate(calc(var(--tx)*0.4), calc(var(--ty)*0.4)) scale(var(--maxScale)) rotate(120deg); opacity: 1; }
+    60%  { filter: drop-shadow(0 0 4px #fff8c0) drop-shadow(0 0 16px #ffd700) drop-shadow(0 0 32px rgba(200,140,0,0.7)); }
+    70%  { opacity: 0.85; }
+    100% { transform: translate(var(--tx), var(--ty)) scale(0.2) rotate(360deg); opacity: 0; }
+  }
+
+  /* 流れ星 */
+  /* 流れ星キャンバス */
+  #shootingStarCanvas {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 160;
+    display: none;
+  }
+  #shootingStarCanvas.active { display: block; }
+
+  /* カウントダウンバー */
+  .spin-progress-wrap {
+    width: 220px;
+    height: 8px;
+    background: #fce8f0;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: inset 0 1px 4px rgba(200,100,140,0.2);
+  }
+  .spin-progress-bar {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, #f4b8cc, #e85a80, #f4b8cc);
+    background-size: 200% 100%;
+    border-radius: 8px;
+    transform-origin: left;
+    transition: transform 0.1s linear;
+    animation: shimmer 1.5s linear infinite;
+  }
+  @keyframes shimmer {
+    0%   { background-position: 100% 0; }
+    100% { background-position: -100% 0; }
+  }
+
+  .spin-label {
+    font-size: 0.82rem;
+    color: #c9a0b0;
+    letter-spacing: 2px;
+    animation: labelPulse 1s ease-in-out infinite;
+  }
+  @keyframes labelPulse {
+    0%,100% { opacity: 0.6; }
+    50%      { opacity: 1; }
+  }
+
+  /* 受け取り完了カード */
+  .spin-finish-card {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    animation: finishPop 0.6s cubic-bezier(0.34,1.56,0.64,1) forwards;
+  }
+  .spin-finish-card.show { display: flex; }
+  @keyframes finishPop {
+    0%   { transform: scale(0.5) rotate(-8deg); opacity: 0; }
+    70%  { transform: scale(1.06) rotate(2deg); opacity: 1; }
+    100% { transform: scale(1)    rotate(0deg); opacity: 1; }
+  }
+  @keyframes envelopeBounce {
+    from { transform: translateY(0) rotate(-4deg); }
+    to   { transform: translateY(-10px) rotate(4deg); }
+  }
+  .finish-msg-box {
+    background: white;
+    border: 2px solid #f4b8c8;
+    border-radius: 16px;
+    padding: 16px 24px;
+    max-width: 280px;
+    text-align: center;
+    box-shadow: 0 8px 30px rgba(232,90,128,0.15);
+  }
+  .finish-msg-text {
+    font-size: 0.95rem;
+    color: #c2607a;
+    line-height: 1.7;
+    word-break: break-all;
+  }
+  .finish-label {
+    font-size: 0.7rem;
+    color: #d4a0b0;
+    letter-spacing: 2px;
+    margin-top: 6px;
+  }
+  .finish-close-btn {
+    padding: 12px 32px;
+    background: linear-gradient(135deg, #f4778a, #e85a80);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(232,90,128,0.35);
+    transition: transform 0.2s;
+    margin-top: 4px;
+  }
+  .finish-close-btn:hover { transform: scale(1.05); }
+
+  /* 虹のラッパー（💌の背後に重ねる） */
+  .finish-rainbow-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 320px;
+    height: 200px;
+  }
+  #rainbowCanvas {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border-radius: 16px;
+  }
+  .finish-envelope {
+    position: relative;
+    z-index: 2;
+    font-size: 72px;
+    filter: drop-shadow(0 6px 20px rgba(232,90,128,0.4));
+    animation: envelopeBounce 0.8s ease-in-out 0.3s infinite alternate;
+  }
+</style>
+</head>
+<body>
+
+<!-- 浮かぶ花びら -->
+<div id="petals"></div>
+
+<p class="title">Strawberry Bear 🍓</p>
+<p class="subtitle">こっそり気持ちを届けて</p>
+
+<div class="stage">
+  <!-- メッセージバブル -->
+  <div class="message-bubble" id="bubble">…</div>
+
+  <!-- クマ -->
+  <div class="bear-container" id="bear" onclick="tapBear()">
+    <svg class="bear-svg" viewBox="0 0 120 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <!-- ふわふわ頭グラデ（明るい中心＋やわらかいエッジ） -->
+        <radialGradient id="headGrad" cx="38%" cy="32%" r="62%">
+          <stop offset="0%"   stop-color="#fff0e0"/>
+          <stop offset="35%"  stop-color="#f5d4a8"/>
+          <stop offset="70%"  stop-color="#e0aa70"/>
+          <stop offset="100%" stop-color="#c88848"/>
+        </radialGradient>
+        <!-- 体グラデ（丸みを強調） -->
+        <radialGradient id="bodyGrad" cx="42%" cy="28%" r="68%">
+          <stop offset="0%"   stop-color="#feebd0"/>
+          <stop offset="45%"  stop-color="#e8b878"/>
+          <stop offset="100%" stop-color="#c07840"/>
+        </radialGradient>
+        <!-- 耳内側 -->
+        <radialGradient id="earInner" cx="50%" cy="50%" r="50%">
+          <stop offset="0%"   stop-color="#ffc0b0"/>
+          <stop offset="100%" stop-color="#e88878"/>
+        </radialGradient>
+        <!-- 耳外側 -->
+        <radialGradient id="earOuter" cx="35%" cy="30%" r="70%">
+          <stop offset="0%"   stop-color="#fdecd8"/>
+          <stop offset="100%" stop-color="#c88040"/>
+        </radialGradient>
+        <!-- お腹パッチ -->
+        <radialGradient id="bellyGrad" cx="50%" cy="40%" r="55%">
+          <stop offset="0%"   stop-color="#fff8f0"/>
+          <stop offset="100%" stop-color="#f5e0c0"/>
+        </radialGradient>
+        <!-- 鼻 -->
+        <radialGradient id="noseGrad" cx="40%" cy="30%" r="60%">
+          <stop offset="0%"   stop-color="#c87860"/>
+          <stop offset="100%" stop-color="#804030"/>
+        </radialGradient>
+        <!-- 目 -->
+        <radialGradient id="eyeGrad" cx="32%" cy="28%" r="68%">
+          <stop offset="0%"   stop-color="#604838"/>
+          <stop offset="100%" stop-color="#180800"/>
+        </radialGradient>
+        <!-- 頬 -->
+        <radialGradient id="cheekGrad" cx="50%" cy="50%" r="50%">
+          <stop offset="0%"   stop-color="#ffb0c0" stop-opacity="0.95"/>
+          <stop offset="60%"  stop-color="#f07898" stop-opacity="0.5"/>
+          <stop offset="100%" stop-color="#e05880" stop-opacity="0"/>
+        </radialGradient>
+        <!-- ベレー帽 -->
+        <radialGradient id="hatGrad" cx="38%" cy="22%" r="72%">
+          <stop offset="0%"   stop-color="#ffa0b0"/>
+          <stop offset="50%"  stop-color="#e06070"/>
+          <stop offset="100%" stop-color="#a03050"/>
+        </radialGradient>
+        <!-- ふわふわシャドウフィルタ -->
+        <filter id="fluffyShadow" x="-25%" y="-25%" width="150%" height="150%">
+          <feDropShadow dx="1" dy="5" stdDeviation="5" flood-color="#a06030" flood-opacity="0.22"/>
+        </filter>
+        <!-- 耳ふわふわ -->
+        <filter id="earShadow" x="-30%" y="-30%" width="160%" height="160%">
+          <feDropShadow dx="1" dy="2" stdDeviation="3" flood-color="#904830" flood-opacity="0.25"/>
+        </filter>
+        <!-- 瓶グラデーション -->
+        <linearGradient id="jarGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%"   stop-color="rgba(180,220,255,0.7)"/>
+          <stop offset="30%"  stop-color="rgba(220,240,255,0.3)"/>
+          <stop offset="70%"  stop-color="rgba(200,230,255,0.5)"/>
+          <stop offset="100%" stop-color="rgba(160,210,255,0.6)"/>
+        </linearGradient>
+      </defs>
+
+      <!-- ===== 地面の影（ぬいぐるみが乗っている感） ===== -->
+      <ellipse cx="60" cy="138" rx="40" ry="6" fill="rgba(180,120,80,0.18)"/>
+
+      <!-- ===== 瓶本体（体の後ろ） ===== -->
+      <rect x="22" y="72" width="76" height="64" rx="16" fill="url(#jarGrad)" stroke="#90c8e8" stroke-width="1.5"/>
+      <rect x="28" y="76" width="6" height="52" rx="3" fill="rgba(255,255,255,0.5)"/>
+      <rect x="86" y="80" width="4" height="44" rx="2" fill="rgba(255,255,255,0.2)"/>
+      <rect x="32" y="62" width="56" height="16" rx="8" fill="url(#jarGrad)" stroke="#90c8e8" stroke-width="1.5"/>
+      <rect x="26" y="52" width="68" height="14" rx="7" fill="url(#hatGrad)" stroke="#903848" stroke-width="1"/>
+      <rect x="30" y="54" width="60" height="6" rx="3" fill="rgba(255,255,255,0.25)"/>
+      <line x1="40" y1="52" x2="40" y2="66" stroke="rgba(150,50,60,0.3)" stroke-width="1"/>
+      <line x1="52" y1="52" x2="52" y2="66" stroke="rgba(150,50,60,0.3)" stroke-width="1"/>
+      <line x1="64" y1="52" x2="64" y2="66" stroke="rgba(150,50,60,0.3)" stroke-width="1"/>
+      <line x1="76" y1="52" x2="76" y2="66" stroke="rgba(150,50,60,0.3)" stroke-width="1"/>
+      <line x1="26" y1="57" x2="94" y2="57" stroke="rgba(150,50,60,0.3)" stroke-width="1"/>
+      <line x1="26" y1="62" x2="94" y2="62" stroke="rgba(150,50,60,0.3)" stroke-width="1"/>
+      <!-- 瓶の中のイチゴ -->
+      <ellipse cx="44" cy="125" rx="14" ry="13" fill="#e04858"/>
+      <ellipse cx="44" cy="122" rx="12" ry="10" fill="#f06070"/>
+      <ellipse cx="39" cy="118" rx="4" ry="3" fill="rgba(255,255,255,0.3)"/>
+      <path d="M38 112 Q44 108 50 112" stroke="#5a9040" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <ellipse cx="72" cy="127" rx="12" ry="11" fill="#d03848"/>
+      <ellipse cx="72" cy="124" rx="10" ry="8" fill="#e85868"/>
+      <path d="M75 108 Q75 103 79 103 Q83 103 83 108 Q83 112 75 117 Q67 112 67 108 Q67 103 71 103 Q75 103 75 108Z" fill="white" stroke="#f0a0b0" stroke-width="1"/>
+      <rect x="22" y="72" width="76" height="64" rx="16" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="1.5"/>
+      <ellipse cx="38" cy="84" rx="6" ry="14" fill="rgba(255,255,255,0.32)" transform="rotate(-10 38 84)"/>
+
+      <!-- ===== 腕（左）ふっくら ===== -->
+      <ellipse cx="29" cy="100" rx="12" ry="9" fill="url(#bodyGrad)" filter="url(#fluffyShadow)" transform="rotate(25 29 100)"/>
+      <ellipse cx="24" cy="109" rx="11" ry="8" fill="url(#bodyGrad)" transform="rotate(15 24 109)"/>
+      <!-- 手のひらパッド -->
+      <ellipse cx="21" cy="115" rx="9" ry="7" fill="url(#headGrad)"/>
+      <ellipse cx="21" cy="117" rx="6" ry="4" fill="#f0a898" opacity="0.65"/>
+      <circle cx="16" cy="113" r="2.2" fill="#e09088" opacity="0.6"/>
+      <circle cx="21" cy="111" r="2.2" fill="#e09088" opacity="0.6"/>
+      <circle cx="26" cy="113" r="2.2" fill="#e09088" opacity="0.6"/>
+      <!-- 縫い目（ぬいぐるみ感） -->
+      <path d="M31 93 Q25 101 22 112" stroke="rgba(160,90,40,0.2)" stroke-width="1.3" fill="none" stroke-dasharray="3,2.5"/>
+
+      <!-- ===== 腕（右）ふっくら ===== -->
+      <ellipse cx="91" cy="100" rx="12" ry="9" fill="url(#bodyGrad)" filter="url(#fluffyShadow)" transform="rotate(-25 91 100)"/>
+      <ellipse cx="96" cy="109" rx="11" ry="8" fill="url(#bodyGrad)" transform="rotate(-15 96 109)"/>
+      <ellipse cx="99" cy="115" rx="9" ry="7" fill="url(#headGrad)"/>
+      <ellipse cx="99" cy="117" rx="6" ry="4" fill="#f0a898" opacity="0.65"/>
+      <circle cx="94" cy="113" r="2.2" fill="#e09088" opacity="0.6"/>
+      <circle cx="99" cy="111" r="2.2" fill="#e09088" opacity="0.6"/>
+      <circle cx="104" cy="113" r="2.2" fill="#e09088" opacity="0.6"/>
+      <path d="M89 93 Q95 101 98 112" stroke="rgba(160,90,40,0.2)" stroke-width="1.3" fill="none" stroke-dasharray="3,2.5"/>
+
+      <!-- ===== 体（ぽってり丸） ===== -->
+      <ellipse cx="60" cy="106" rx="28" ry="26" fill="url(#bodyGrad)" filter="url(#fluffyShadow)"/>
+      <!-- お腹の明るいパッチ（ぬいぐるみらしさ） -->
+      <ellipse cx="60" cy="110" rx="18" ry="20" fill="url(#bellyGrad)" opacity="0.85"/>
+      <!-- 体の光沢 -->
+      <ellipse cx="50" cy="90" rx="11" ry="6" fill="rgba(255,255,255,0.28)" transform="rotate(-20 50 90)"/>
+      <!-- 体の縫い目（中央） -->
+      <path d="M60 82 Q62 95 60 115 Q58 125 60 132" stroke="rgba(160,90,40,0.2)" stroke-width="1.2" fill="none" stroke-dasharray="4,3"/>
+      <!-- 体の縫い目（左） -->
+      <path d="M36 92 Q33 108 36 126" stroke="rgba(160,90,40,0.15)" stroke-width="1" fill="none" stroke-dasharray="3,3"/>
+      <!-- 体の縫い目（右） -->
+      <path d="M84 92 Q87 108 84 126" stroke="rgba(160,90,40,0.15)" stroke-width="1" fill="none" stroke-dasharray="3,3"/>
+      <!-- お腹ボタン -->
+      <circle cx="60" cy="116" r="3.5" fill="#e8b070" stroke="#c88040" stroke-width="1.2"/>
+      <circle cx="60" cy="116" r="1.5" fill="#c07030"/>
+      <!-- ボタン穴の糸 -->
+      <line x1="57.5" y1="116" x2="62.5" y2="116" stroke="#a06030" stroke-width="0.7" opacity="0.5"/>
+      <line x1="60" y1="113.5" x2="60" y2="118.5" stroke="#a06030" stroke-width="0.7" opacity="0.5"/>
+
+      <!-- ===== 足（前面） ===== -->
+      <ellipse cx="45" cy="130" rx="13" ry="9" fill="url(#bodyGrad)" transform="rotate(-8 45 130)"/>
+      <ellipse cx="40" cy="135" rx="11" ry="7" fill="url(#bodyGrad)" transform="rotate(-12 40 135)"/>
+      <ellipse cx="39" cy="136" rx="8" ry="5" fill="#f0a898" opacity="0.6" transform="rotate(-12 39 136)"/>
+      <circle cx="33" cy="134" r="2" fill="#e09088" opacity="0.55"/>
+      <circle cx="38" cy="132" r="2" fill="#e09088" opacity="0.55"/>
+      <circle cx="43" cy="133" r="2" fill="#e09088" opacity="0.55"/>
+
+      <ellipse cx="75" cy="130" rx="13" ry="9" fill="url(#bodyGrad)" transform="rotate(8 75 130)"/>
+      <ellipse cx="80" cy="135" rx="11" ry="7" fill="url(#bodyGrad)" transform="rotate(12 80 135)"/>
+      <ellipse cx="81" cy="136" rx="8" ry="5" fill="#f0a898" opacity="0.6" transform="rotate(12 81 136)"/>
+      <circle cx="77" cy="133" r="2" fill="#e09088" opacity="0.55"/>
+      <circle cx="82" cy="132" r="2" fill="#e09088" opacity="0.55"/>
+      <circle cx="87" cy="134" r="2" fill="#e09088" opacity="0.55"/>
+
+      <!-- ===== 首 ===== -->
+      <ellipse cx="60" cy="80" rx="17" ry="9" fill="url(#bodyGrad)"/>
+
+      <!-- ===== 耳（左）ふかふか大きめ ===== -->
+      <circle cx="36" cy="46" r="15" fill="url(#earOuter)" filter="url(#earShadow)"/>
+      <!-- 耳の縫い目 -->
+      <circle cx="36" cy="46" r="15" fill="none" stroke="rgba(160,90,40,0.18)" stroke-width="1" stroke-dasharray="4,3"/>
+      <!-- 耳の内側パッド -->
+      <ellipse cx="36" cy="47" rx="9" ry="10" fill="url(#earInner)"/>
+      <ellipse cx="34" cy="44" rx="4" ry="3" fill="rgba(255,255,255,0.4)" transform="rotate(-10 34 44)"/>
+
+      <!-- ===== 耳（右）ふかふか ===== -->
+      <circle cx="84" cy="46" r="15" fill="url(#earOuter)" filter="url(#earShadow)"/>
+      <circle cx="84" cy="46" r="15" fill="none" stroke="rgba(160,90,40,0.18)" stroke-width="1" stroke-dasharray="4,3"/>
+      <ellipse cx="84" cy="47" rx="9" ry="10" fill="url(#earInner)"/>
+      <ellipse cx="82" cy="44" rx="4" ry="3" fill="rgba(255,255,255,0.4)" transform="rotate(-10 82 44)"/>
+
+      <!-- ===== 頭（ぽわっと大きめ丸） ===== -->
+      <ellipse cx="60" cy="62" rx="30" ry="28" fill="url(#headGrad)" filter="url(#fluffyShadow)"/>
+      <!-- 頭の縫い目 -->
+      <path d="M60 34 Q63 48 60 62" stroke="rgba(160,90,40,0.18)" stroke-width="1.1" fill="none" stroke-dasharray="4,3"/>
+      <!-- 頭の光沢（大きめ） -->
+      <ellipse cx="48" cy="48" rx="14" ry="8" fill="rgba(255,255,255,0.25)" transform="rotate(-18 48 48)"/>
+
+      <!-- ===== ベレー帽（ふかふか） ===== -->
+      <ellipse cx="60" cy="40" rx="32" ry="16" fill="url(#hatGrad)"/>
+      <ellipse cx="60" cy="35" rx="26" ry="13" fill="#e86880"/>
+      <ellipse cx="51" cy="31" rx="16" ry="7" fill="rgba(255,255,255,0.22)"/>
+      <!-- ポンポン（大きくふわふわ） -->
+      <circle cx="60" cy="25" r="9" fill="#ffb0b8"/>
+      <circle cx="60" cy="25" r="9" fill="none" stroke="rgba(200,80,100,0.2)" stroke-width="1" stroke-dasharray="3,2"/>
+      <ellipse cx="57" cy="22" rx="4" ry="3" fill="rgba(255,255,255,0.55)"/>
+      <!-- 帽子の格子 -->
+      <line x1="40" y1="34" x2="40" y2="52" stroke="rgba(160,50,60,0.22)" stroke-width="1.2"/>
+      <line x1="52" y1="29" x2="52" y2="52" stroke="rgba(160,50,60,0.22)" stroke-width="1.2"/>
+      <line x1="60" y1="27" x2="60" y2="53" stroke="rgba(160,50,60,0.22)" stroke-width="1.2"/>
+      <line x1="68" y1="29" x2="68" y2="52" stroke="rgba(160,50,60,0.22)" stroke-width="1.2"/>
+      <line x1="80" y1="34" x2="80" y2="52" stroke="rgba(160,50,60,0.22)" stroke-width="1.2"/>
+      <line x1="28" y1="40" x2="92" y2="40" stroke="rgba(160,50,60,0.22)" stroke-width="1.2"/>
+      <line x1="28" y1="46" x2="92" y2="46" stroke="rgba(160,50,60,0.22)" stroke-width="1.2"/>
+
+      <!-- ===== マズル（ふわふわ楕円） ===== -->
+      <ellipse cx="60" cy="70" rx="17" ry="14" fill="#fef5e8"/>
+      <ellipse cx="62" cy="73" rx="12" ry="9" fill="rgba(180,130,70,0.1)"/>
+
+      <!-- ===== 鼻（ぽってり） ===== -->
+      <ellipse cx="60" cy="63" rx="8" ry="6" fill="url(#noseGrad)"/>
+      <ellipse cx="57" cy="61" rx="3" ry="2" fill="rgba(255,255,255,0.4)"/>
+      <!-- 小鼻の影 -->
+      <ellipse cx="60" cy="67" rx="5" ry="2" fill="rgba(100,40,20,0.2)"/>
+
+      <!-- ===== 目（小さくてつぶら） ===== -->
+      <circle cx="48" cy="57" r="3.2" fill="url(#eyeGrad)"/>
+      <circle cx="72" cy="57" r="3.2" fill="url(#eyeGrad)"/>
+      <!-- 白目ハイライト -->
+      <circle cx="47" cy="55.8" r="1.3" fill="rgba(255,255,255,0.92)"/>
+      <circle cx="71" cy="55.8" r="1.3" fill="rgba(255,255,255,0.92)"/>
+      <!-- キラキラ小点 -->
+      <circle cx="49.5" cy="58" r="0.7" fill="rgba(255,255,255,0.6)"/>
+      <circle cx="73.5" cy="58" r="0.7" fill="rgba(255,255,255,0.6)"/>
+
+      <!-- ===== 頬（ぽわん） ===== -->
+      <ellipse class="bear-cheek" cx="40" cy="66" rx="11" ry="9" fill="url(#cheekGrad)"/>
+      <ellipse class="bear-cheek" cx="80" cy="66" rx="11" ry="9" fill="url(#cheekGrad)"/>
+
+      <!-- ===== 口（ぬいぐるみ縫い目風） ===== -->
+      <!-- 中央の縦糸（鼻下から口へ） -->
+      <line x1="60" y1="68" x2="60" y2="72" stroke="#b06840" stroke-width="1.8" stroke-linecap="round"/>
+      <!-- にっこり口の左右カーブ（太めのステッチ） -->
+      <path d="M52 72 Q56 78 60 79" stroke="#b06840" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M68 72 Q64 78 60 79" stroke="#b06840" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- 縫い目の点線（ステッチ感） -->
+      <path d="M53 73 Q57 78.5 60 79.5" stroke="rgba(255,220,180,0.5)" stroke-width="1" fill="none" stroke-dasharray="2,2.5" stroke-linecap="round"/>
+      <path d="M67 73 Q63 78.5 60 79.5" stroke="rgba(255,220,180,0.5)" stroke-width="1" fill="none" stroke-dasharray="2,2.5" stroke-linecap="round"/>
+
+    </svg>
+    <div class="tap-hint" id="tapHint">5回タップして 🌸</div>
+  </div>
+
+  <!-- イチゴケーキ（背景） -->
+  <svg class="cake" viewBox="0 0 200 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="cakeSponge" cx="50%" cy="30%" r="70%">
+        <stop offset="0%"   stop-color="#fff8e8"/>
+        <stop offset="100%" stop-color="#f5dfa8"/>
+      </radialGradient>
+      <radialGradient id="cakeCream" cx="50%" cy="20%" r="65%">
+        <stop offset="0%"   stop-color="#ffffff"/>
+        <stop offset="100%" stop-color="#ffeef4"/>
+      </radialGradient>
+      <radialGradient id="sg1" cx="35%" cy="30%" r="65%">
+        <stop offset="0%"   stop-color="#ff8898"/>
+        <stop offset="55%"  stop-color="#e83055"/>
+        <stop offset="100%" stop-color="#a81830"/>
+      </radialGradient>
+      <radialGradient id="sg2" cx="35%" cy="30%" r="65%">
+        <stop offset="0%"   stop-color="#ff7888"/>
+        <stop offset="55%"  stop-color="#d82848"/>
+        <stop offset="100%" stop-color="#981828"/>
+      </radialGradient>
+      <filter id="cakeShadow">
+        <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#d08080" flood-opacity="0.18"/>
+      </filter>
+      <linearGradient id="cream" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"   stop-color="white"/>
+        <stop offset="100%" stop-color="#fff0f4"/>
+      </linearGradient>
+    </defs>
+
+    <!-- お皿の影 -->
+    <ellipse cx="100" cy="174" rx="80" ry="8" fill="rgba(200,140,140,0.18)"/>
+    <!-- お皿 -->
+    <ellipse cx="100" cy="168" rx="86" ry="10" fill="#fbe8f0"/>
+    <ellipse cx="100" cy="166" rx="80" ry="7" fill="#fff0f6"/>
+    <ellipse cx="80"  cy="165" rx="28" ry="3"  fill="rgba(255,255,255,0.6)" transform="rotate(-8 80 165)"/>
+
+    <!-- ケーキ本体（角丸でやわらかく） -->
+    <rect x="22" y="88" width="156" height="72" rx="14" fill="url(#cakeSponge)" filter="url(#cakeShadow)"/>
+
+    <!-- スポンジ層の線 -->
+    <rect x="22" y="104" width="156" height="18" rx="0" fill="#ffe8b8" opacity="0.7"/>
+    <line x1="22" y1="104" x2="178" y2="104" stroke="#f5d090" stroke-width="1.5" opacity="0.8"/>
+    <line x1="22" y1="122" x2="178" y2="122" stroke="#f5d090" stroke-width="1.5" opacity="0.8"/>
+
+    <!-- クリームサイドの波デコ（左右） -->
+    <path d="M22 140 Q28 134 34 140 Q40 146 46 140 Q52 134 58 140 Q64 146 70 140 Q76 134 82 140 Q88 146 94 140 Q100 134 106 140 Q112 146 118 140 Q124 134 130 140 Q136 146 142 140 Q148 134 154 140 Q160 146 166 140 Q172 134 178 140 L178 160 Q100 165 22 160Z" fill="#fff0f4" opacity="0.6"/>
+
+    <!-- トップクリーム（ふわっとした波形） -->
+    <path d="M22 90 Q36 76 56 82 Q76 88 100 74 Q124 60 144 76 Q164 88 178 80 L178 92 Q100 100 22 92Z" fill="url(#cakeCream)"/>
+    <path d="M22 90 Q36 76 56 82 Q76 88 100 74 Q124 60 144 76 Q164 88 178 80 L178 92 Q100 100 22 92Z" fill="none" stroke="#ffd8e8" stroke-width="1.5"/>
+
+    <!-- クリームのふわふわドット -->
+    <circle cx="70"  cy="88" r="7"  fill="white" opacity="0.9"/>
+    <circle cx="100" cy="82" r="8"  fill="white" opacity="0.9"/>
+    <circle cx="130" cy="88" r="7"  fill="white" opacity="0.9"/>
+    <circle cx="70"  cy="88" r="4"  fill="rgba(255,240,248,0.8)"/>
+    <circle cx="100" cy="82" r="4.5" fill="rgba(255,240,248,0.8)"/>
+    <circle cx="130" cy="88" r="4"  fill="rgba(255,240,248,0.8)"/>
+
+    <!-- 左イチゴ（本物のイチゴ形：上ぷっくり→下とがり） -->
+    <!-- 影 -->
+    <ellipse cx="56" cy="91" rx="10" ry="3" fill="rgba(180,60,80,0.15)"/>
+    <!-- 実 -->
+    <path d="M56 91 Q43 87 42 76 Q41 65 48 61 Q52 58 56 58 Q60 58 64 61 Q71 65 70 76 Q69 87 56 91Z" fill="url(#sg1)"/>
+    <!-- 光沢 -->
+    <ellipse cx="50" cy="67" rx="5.5" ry="4" fill="rgba(255,255,255,0.35)" transform="rotate(-25 50 67)"/>
+    <!-- 種（小さい楕円を散らす） -->
+    <ellipse cx="51" cy="70" rx="1.1" ry="1.4" fill="rgba(255,230,190,0.8)" transform="rotate(10 51 70)"/>
+    <ellipse cx="60" cy="68" rx="1.1" ry="1.4" fill="rgba(255,230,190,0.8)" transform="rotate(-8 60 68)"/>
+    <ellipse cx="54" cy="77" rx="1.1" ry="1.4" fill="rgba(255,230,190,0.8)" transform="rotate(5 54 77)"/>
+    <ellipse cx="62" cy="75" rx="1"   ry="1.3" fill="rgba(255,230,190,0.8)" transform="rotate(-12 62 75)"/>
+    <ellipse cx="50" cy="83" rx="1"   ry="1.3" fill="rgba(255,230,190,0.8)"/>
+    <ellipse cx="59" cy="84" rx="1"   ry="1.3" fill="rgba(255,230,190,0.8)" transform="rotate(8 59 84)"/>
+    <!-- ヘタ（ギザギザ葉） -->
+    <path d="M56 58 Q53 51 48 53 Q51 57 56 58Z" fill="#3a9830"/>
+    <path d="M56 58 Q54 49 52 47 Q54 52 56 58Z" fill="#4aaa3a"/>
+    <path d="M56 58 Q58 49 56 46 Q56 52 56 58Z" fill="#3a9830"/>
+    <path d="M56 58 Q60 51 64 53 Q61 57 56 58Z" fill="#4aaa3a"/>
+    <path d="M56 58 Q62 50 63 48 Q60 53 56 58Z" fill="#3a9830"/>
+
+    <!-- 中央イチゴ（大・本物形） -->
+    <ellipse cx="100" cy="96" rx="13" ry="4" fill="rgba(180,60,80,0.15)"/>
+    <path d="M100 96 Q84 91 83 78 Q82 64 91 59 Q95 56 100 56 Q105 56 109 59 Q118 64 117 78 Q116 91 100 96Z" fill="url(#sg2)"/>
+    <ellipse cx="92" cy="66" rx="7" ry="4.5" fill="rgba(255,255,255,0.35)" transform="rotate(-22 92 66)"/>
+    <ellipse cx="93" cy="72" rx="1.2" ry="1.5" fill="rgba(255,230,190,0.8)" transform="rotate(12 93 72)"/>
+    <ellipse cx="104" cy="70" rx="1.2" ry="1.5" fill="rgba(255,230,190,0.8)" transform="rotate(-8 104 70)"/>
+    <ellipse cx="96"  cy="79" rx="1.2" ry="1.5" fill="rgba(255,230,190,0.8)" transform="rotate(5 96 79)"/>
+    <ellipse cx="107" cy="78" rx="1.1" ry="1.4" fill="rgba(255,230,190,0.8)" transform="rotate(-14 107 78)"/>
+    <ellipse cx="93"  cy="87" rx="1.1" ry="1.4" fill="rgba(255,230,190,0.8)"/>
+    <ellipse cx="105" cy="87" rx="1.1" ry="1.4" fill="rgba(255,230,190,0.8)" transform="rotate(10 105 87)"/>
+    <!-- ヘタ -->
+    <path d="M100 56 Q96 48 90 50 Q94 55 100 56Z" fill="#3a9830"/>
+    <path d="M100 56 Q97 47 95 44 Q97 51 100 56Z" fill="#4aaa3a"/>
+    <path d="M100 56 Q100 46 100 43 Q100 50 100 56Z" fill="#3a9830"/>
+    <path d="M100 56 Q103 47 105 44 Q103 51 100 56Z" fill="#4aaa3a"/>
+    <path d="M100 56 Q104 48 110 50 Q106 55 100 56Z" fill="#3a9830"/>
+
+    <!-- 右イチゴ（本物形） -->
+    <ellipse cx="144" cy="91" rx="10" ry="3" fill="rgba(180,60,80,0.15)"/>
+    <path d="M144 91 Q131 87 130 76 Q129 65 136 61 Q140 58 144 58 Q148 58 152 61 Q159 65 158 76 Q157 87 144 91Z" fill="url(#sg1)"/>
+    <ellipse cx="138" cy="67" rx="5.5" ry="4" fill="rgba(255,255,255,0.35)" transform="rotate(-25 138 67)"/>
+    <ellipse cx="139" cy="70" rx="1.1" ry="1.4" fill="rgba(255,230,190,0.8)" transform="rotate(10 139 70)"/>
+    <ellipse cx="148" cy="68" rx="1.1" ry="1.4" fill="rgba(255,230,190,0.8)" transform="rotate(-8 148 68)"/>
+    <ellipse cx="141" cy="77" rx="1.1" ry="1.4" fill="rgba(255,230,190,0.8)" transform="rotate(5 141 77)"/>
+    <ellipse cx="150" cy="75" rx="1"   ry="1.3" fill="rgba(255,230,190,0.8)" transform="rotate(-12 150 75)"/>
+    <ellipse cx="139" cy="83" rx="1"   ry="1.3" fill="rgba(255,230,190,0.8)"/>
+    <ellipse cx="148" cy="84" rx="1"   ry="1.3" fill="rgba(255,230,190,0.8)" transform="rotate(8 148 84)"/>
+    <!-- ヘタ -->
+    <path d="M144 58 Q141 51 136 53 Q139 57 144 58Z" fill="#3a9830"/>
+    <path d="M144 58 Q142 49 140 47 Q142 52 144 58Z" fill="#4aaa3a"/>
+    <path d="M144 58 Q144 49 144 46 Q144 52 144 58Z" fill="#3a9830"/>
+    <path d="M144 58 Q146 51 150 52 Q147 57 144 58Z" fill="#4aaa3a"/>
+    <path d="M144 58 Q149 50 151 48 Q148 53 144 58Z" fill="#3a9830"/>
+
+    <!-- ケーキの角丸アウトライン（やわらか感） -->
+    <rect x="22" y="88" width="156" height="72" rx="14" fill="none" stroke="#ffd0dc" stroke-width="2"/>
+    <!-- ケーキ左光沢 -->
+    <rect x="26" y="94" width="5" height="56" rx="3" fill="rgba(255,255,255,0.35)"/>
+  </svg>
+
+  <!-- 進行状況 -->
+  <div class="progress-dots" style="position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);">
+    <div class="dot active" id="d0"></div>
+    <div class="dot" id="d1"></div>
+    <div class="dot" id="d2"></div>
+    <div class="dot" id="d3"></div>
+    <div class="dot" id="d4"></div>
+  </div>
+</div>
+
+<!-- メッセージ入力 -->
+<div class="input-section" id="inputSection">
+  <p class="input-label">✨ きもちを言葉にして ✨</p>
+  <textarea class="message-input" id="msgInput" placeholder="あなたの気持ちを書いてね…"></textarea>
+  <button class="send-btn" onclick="sendLetter()">💌 届ける</button>
+</div>
+
+<!-- コーヒーカップ（右下固定） -->
+<div style="position:fixed;bottom:18px;right:18px;z-index:50;pointer-events:none;">
+  <svg width="90" height="110" viewBox="0 0 90 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="cupGrad" cx="35%" cy="30%" r="70%">
+        <stop offset="0%" stop-color="#fff8f0"/>
+        <stop offset="60%" stop-color="#ffe0d0"/>
+        <stop offset="100%" stop-color="#e8b898"/>
+      </radialGradient>
+      <radialGradient id="coffeeGrad" cx="40%" cy="40%" r="60%">
+        <stop offset="0%" stop-color="#8b5e3c"/>
+        <stop offset="100%" stop-color="#5a3010"/>
+      </radialGradient>
+      <radialGradient id="saucerGrad" cx="40%" cy="30%" r="65%">
+        <stop offset="0%" stop-color="#fff0e8"/>
+        <stop offset="100%" stop-color="#e0c0a8"/>
+      </radialGradient>
+      <filter id="cupShadow">
+        <feDropShadow dx="2" dy="3" stdDeviation="3" flood-color="#c09070" flood-opacity="0.35"/>
+      </filter>
+    </defs>
+    <!-- 湯気 -->
+    <path d="M30 32 Q27 25 30 18 Q33 11 30 4" stroke="#c8b8b0" stroke-width="2.5" fill="none" stroke-linecap="round">
+      <animate attributeName="d" values="M30 32 Q27 25 30 18 Q33 11 30 4;M30 32 Q34 25 30 18 Q26 11 30 4;M30 32 Q27 25 30 18 Q33 11 30 4" dur="2s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.7;0.15;0.7" dur="2s" repeatCount="indefinite"/>
+    </path>
+    <path d="M44 28 Q41 21 44 14 Q47 7 44 1" stroke="#c8b8b0" stroke-width="2" fill="none" stroke-linecap="round">
+      <animate attributeName="d" values="M44 28 Q41 21 44 14 Q47 7 44 1;M44 28 Q48 21 44 14 Q40 7 44 1;M44 28 Q41 21 44 14 Q47 7 44 1" dur="2.5s" repeatCount="indefinite" begin="0.5s"/>
+      <animate attributeName="opacity" values="0.5;0.1;0.5" dur="2.5s" repeatCount="indefinite" begin="0.5s"/>
+    </path>
+    <path d="M58 32 Q55 25 58 18 Q61 11 58 5" stroke="#c8b8b0" stroke-width="2" fill="none" stroke-linecap="round">
+      <animate attributeName="d" values="M58 32 Q55 25 58 18 Q61 11 58 5;M58 32 Q62 25 58 18 Q54 11 58 5;M58 32 Q55 25 58 18 Q61 11 58 5" dur="1.8s" repeatCount="indefinite" begin="1s"/>
+      <animate attributeName="opacity" values="0.6;0.1;0.6" dur="1.8s" repeatCount="indefinite" begin="1s"/>
+    </path>
+    <!-- ソーサー -->
+    <ellipse cx="44" cy="102" rx="50" ry="13" fill="url(#saucerGrad)" filter="url(#cupShadow)"/>
+    <ellipse cx="44" cy="100" rx="45" ry="10" fill="#fff0e8"/>
+    <ellipse cx="44" cy="99" rx="30" ry="6" fill="url(#saucerGrad)"/>
+    <ellipse cx="34" cy="97" rx="13" ry="3" fill="rgba(255,255,255,0.55)" transform="rotate(-15 34 97)"/>
+    <!-- カップ本体 -->
+    <path d="M14 44 Q12 75 16 88 Q20 96 44 96 Q68 96 72 88 Q76 75 74 44 Z" fill="url(#cupGrad)" filter="url(#cupShadow)"/>
+    <path d="M62 46 Q64 70 63 88 Q62 93 58 95" stroke="rgba(180,120,80,0.2)" stroke-width="8" fill="none" stroke-linecap="round"/>
+    <!-- コーヒー液面 -->
+    <ellipse cx="44" cy="44" rx="30" ry="8" fill="#f0d8c0"/>
+    <ellipse cx="44" cy="44" rx="28" ry="6.5" fill="url(#coffeeGrad)"/>
+    <ellipse cx="38" cy="42" rx="12" ry="3" fill="rgba(255,255,255,0.18)" transform="rotate(-10 38 42)"/>
+    <!-- ラテアートハート -->
+    <path d="M40 44 Q40 41.5 42 41.5 Q44 41.5 44 44 Q44 41.5 46 41.5 Q48 41.5 48 44 Q48 46.5 44 49 Q40 46.5 40 44Z" fill="rgba(200,140,80,0.55)"/>
+    <!-- カップ光沢 -->
+    <path d="M18 50 Q16 65 17 80" stroke="rgba(255,255,255,0.5)" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <!-- ハンドル -->
+    <path d="M72 54 Q88 54 88 66 Q88 78 72 78" stroke="#e8c8a8" stroke-width="8" fill="none" stroke-linecap="round"/>
+    <path d="M72 54 Q84 54 84 66 Q84 78 72 78" stroke="rgba(180,120,80,0.3)" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M72 54 Q88 54 88 66 Q88 78 72 78" stroke="rgba(255,255,255,0.3)" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <!-- リム光沢 -->
+    <ellipse cx="36" cy="43" rx="14" ry="3.5" fill="rgba(255,255,255,0.3)" transform="rotate(-5 36 43)"/>
+  </svg>
+</div>
+
+<!-- ラブレターオーバーレイ -->
+<div class="letter-overlay" id="letterOverlay">
+  <div class="letter-envelope">
+    <div class="letter-card" id="letterCard">
+      <div class="letter-hearts" id="letterHearts"></div>
+      <p class="letter-to">— あなたへ —</p>
+      <div class="letter-content" id="letterText">…</div>
+      <p class="letter-from">🐻 より、こっそり 🍓</p>
+      <p class="letter-hint">このきもち、どうしますか？</p>
+      <div class="letter-actions">
+        <button class="action-btn save-btn" onclick="saveLetter()">💾 保存する</button>
+        <button class="action-btn capsule-btn" onclick="saveTimeCapsule()">⏳ 7日後にまた読む</button>
+        <button class="action-btn delete-btn" onclick="deleteLetter()">🗑️ 消去する</button>
+      </div>
+      <button class="letter-close" onclick="closeLetter()">そっと閉じる 🌸</button>
+    </div>
+  </div>
+</div>
+
+<!-- 保存済みボックス -->
+<div class="saved-box" id="savedBox">
+  <div class="saved-header">
+    <span>📬 保存したきもち</span>
+    <button class="saved-close" onclick="toggleSavedBox()">×</button>
+  </div>
+  <div class="saved-list" id="savedList"></div>
+  <p class="saved-empty" id="savedEmpty">まだ保存されていないよ 🐻</p>
+</div>
+<button class="mailbox-btn" id="mailboxBtn" onclick="toggleSavedBox()">📬 <span id="mailCount">0</span></button>
+
+<!-- 通知トースト -->
+<div class="toast" id="toast"></div>
+
+<script>
+const messages = [
+  "…え、み、見てた？",
+  "あ、あの…",
+  "す、すきです…！",
+  "ずっと言えなかったけど…",
+  "💌 気持ちを届けてみる？"
+];
+
+let step = 0;
+let isAnimating = false;
+
+// 花びらを生成
+function createPetals() {
+  const container = document.getElementById('petals');
+  const emojis = ['🍫', '🍬', '🍭', '🍩', '🧁', '🍪', '🎂', '🍮', '🍡'];
+  for (let i = 0; i < 12; i++) {
+    const p = document.createElement('div');
+    p.className = 'petal';
+    p.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.animationDuration = (8 + Math.random() * 10) + 's';
+    p.style.animationDelay = (Math.random() * 8) + 's';
+    p.style.fontSize = (12 + Math.random() * 12) + 'px';
+    container.appendChild(p);
+  }
+}
+
+function tapBear() {
+  if (isAnimating) return;
+  isAnimating = true;
+
+  const bear = document.getElementById('bear');
+  const bubble = document.getElementById('bubble');
+
+  // ランダム移動
+  moveBear();
+
+  // アニメーション
+  bear.className = 'bear-container';
+  void bear.offsetWidth;
+
+  if (step < 3) {
+    bear.classList.add('shy');
+  } else if (step === 3) {
+    bear.classList.add('happy');
+  } else {
+    bear.classList.add('happy');
+  }
+
+  // バブル表示
+  bubble.textContent = messages[step] || messages[messages.length - 1];
+  bubble.classList.add('show');
+
+  // ドット更新
+  for (let i = 0; i <= 4; i++) {
+    const d = document.getElementById('d' + i);
+    if (d) d.classList.toggle('active', i === step);
+  }
+
+  // ハートパーティクル
+  spawnHearts();
+
+  // 最後のステップで入力欄表示
+  if (step === 4) {
+    document.getElementById('inputSection').classList.add('visible');
+    document.getElementById('tapHint').style.opacity = '0';
+  }
+
+  step = Math.min(step + 1, messages.length - 1);
+
+  setTimeout(() => {
+    bubble.classList.remove('show');
+    isAnimating = false;
+  }, 2200);
+}
+
+function spawnHearts() {
+  const bear = document.getElementById('bear');
+  const rect = bear.getBoundingClientRect();
+  const heartEmojis = ['💗', '💕', '🩷', '💖', '💓'];
+  for (let i = 0; i < 3; i++) {
+    setTimeout(() => {
+      const h = document.createElement('div');
+      h.className = 'heart-particle';
+      h.textContent = heartEmojis[Math.floor(Math.random() * heartEmojis.length)];
+      h.style.left = (rect.left + rect.width / 2 + (Math.random() - 0.5) * 60) + 'px';
+      h.style.top = (rect.top + 20) + 'px';
+      h.style.fontSize = (14 + Math.random() * 10) + 'px';
+      document.body.appendChild(h);
+      setTimeout(() => h.remove(), 1600);
+    }, i * 200);
+  }
+}
+
+// 保存済みレター（メモリ内）
+let savedLetters = [];
+let capsuleLetters = []; // タイムカプセルリスト
+let currentMsg = '';
+
+// 勇気ステップ候補
+const courageSteps = [
+  '今日、目が合ったら笑いかけてみよう 🙂',
+  '「最近どう？」って話しかけてみよう 💬',
+  '相手の好きなものを話題にしてみよう ☕',
+  '何気なく隣に座ってみよう 🌸',
+  'LINEで一言「元気？」って送ってみよう 📱',
+  '「それ、いいね」って一言褒めてみよう ✨',
+  '偶然を装って同じ場所にいてみよう 🎶',
+];
+
+// タイムカプセルに保存
+function saveTimeCapsule() {
+  if (!currentMsg) return;
+  const now = new Date();
+  const openDate = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+  const openDateStr = `${openDate.getFullYear()}年${openDate.getMonth()+1}月${openDate.getDate()}日`;
+  const capsule = {
+    id: Date.now(),
+    text: currentMsg,
+    savedAt: now.getTime(),
+    openAt: now.getTime(), // デモ：即開封可能。本番は openDate.getTime() に
+    openDateStr,
+    opened: false,
+  };
+  capsuleLetters.unshift(capsule);
+  saveCapsulesToStorage();
+
+  document.getElementById('letterOverlay').classList.remove('open');
+
+  // スピン演出をカプセル専用ラベルで起動
+  const msgForSpin = currentMsg;
+  startSpinReceiveCapsule(msgForSpin, () => {
+    // スピン完了後にカプセルオーバーレイへ
+    document.getElementById('capsuleOpenDate').textContent = openDateStr;
+    document.getElementById('capsuleMsgPreview').textContent = `「${msgForSpin}」`;
+    initCapsuleStars();
+    document.getElementById('capsuleOverlay').classList.add('open');
+  });
+
+  document.getElementById('msgInput').value = '';
+  currentMsg = '';
+
+  updateMailCount();
+  renderSavedList();
+}
+
+// カプセル専用スピン演出（完了後にコールバック）
+function startSpinReceiveCapsule(msg, onFinish) {
+  const overlay    = document.getElementById('spinOverlay');
+  const spinPhase  = document.getElementById('spinPhase');
+  const finishPhase = document.getElementById('finishPhase');
+  const bar        = document.getElementById('spinBar');
+  const label      = document.getElementById('spinLabel');
+
+  finishPhase.classList.remove('show');
+  spinPhase.style.display = 'flex';
+  spinPhase.style.flexDirection = 'column';
+  spinPhase.style.alignItems = 'center';
+  spinPhase.style.gap = '18px';
+  bar.style.transform = 'scaleX(1)';
+  overlay.classList.add('active');
+  startShootingStars();
+
+  const duration = 10000;
+  const start = performance.now();
+
+  const labels = [
+    'きもちを星に封じています… 🌙',
+    'カプセルに入れているよ… ⏳',
+    'もうすぐ封印完了… 🔒',
+    '夜空に預けてるよ… 🌟',
+    'もうすぐ… ✨',
+  ];
+
+  let lastHeartTime = 0;
+  let lastStarTime  = 0;
+
+  function tick(now) {
+    const elapsed = now - start;
+    const ratio   = Math.min(elapsed / duration, 1);
+    bar.style.transform = `scaleX(${1 - ratio})`;
+    label.textContent = labels[Math.floor(ratio * labels.length)] || labels[labels.length - 1];
+
+    const heartInterval = 700 - ratio * 200;
+    if (now - lastHeartTime > heartInterval) {
+      spawnSpinHeart();
+      lastHeartTime = now;
+    }
+
+    const starInterval = Math.max(200, 2000 - ratio * 1800);
+    if (now - lastStarTime > starInterval) {
+      const count = ratio < 0.3 ? 1 : ratio < 0.6 ? 2 : ratio < 0.85 ? 3 : 5;
+      for (let i = 0; i < count; i++) spawnSpinStar(ratio);
+      lastStarTime = now;
+    }
+
+    if (ratio < 1) {
+      spinTimer = requestAnimationFrame(tick);
+    } else {
+      // 完了！星を爆発させてからカプセルオーバーレイへ
+      for (let i = 0; i < 18; i++) {
+        setTimeout(() => spawnSpinStar(1.0), i * 60);
+      }
+      setTimeout(() => {
+        overlay.classList.remove('active');
+        stopShootingStars();
+        const bear = document.getElementById('bear');
+        bear.className = 'bear-container happy';
+        setTimeout(() => bear.className = 'bear-container', 1200);
+        if (onFinish) onFinish();
+      }, 600);
+    }
+  }
+  spinTimer = requestAnimationFrame(tick);
+}
+
+// カプセル星空生成
+function initCapsuleStars() {
+  const container = document.getElementById('capsuleStars');
+  container.innerHTML = '';
+  for (let i = 0; i < 80; i++) {
+    const s = document.createElement('div');
+    s.className = 'capsule-star';
+    const size = 1 + Math.random() * 2.5;
+    s.style.width = size + 'px';
+    s.style.height = size + 'px';
+    s.style.left = Math.random() * 100 + 'vw';
+    s.style.top = Math.random() * 100 + 'vh';
+    s.style.animationDuration = (2 + Math.random() * 4) + 's';
+    s.style.animationDelay = (Math.random() * 4) + 's';
+    container.appendChild(s);
+  }
+  // 金色流れ星スタート
+  stopCapsuleGoldStars();
+  startCapsuleGoldStars();
+}
+
+function closeCapsuleOverlay() {
+  document.getElementById('capsuleOverlay').classList.remove('open');
+  stopCapsuleGoldStars();
+  showToast('📅 7日後に、この言葉をもう一度届けるよ 🐻');
+}
+
+// ===== カプセル金色流れ星 =====
+let capsuleGoldCtx = null;
+let capsuleGoldCanvas = null;
+let capsuleGoldStars = [];
+let capsuleGoldRafId = null;
+let capsuleGoldInterval = null;
+
+function startCapsuleGoldStars() {
+  capsuleGoldCanvas = document.getElementById('capsuleGoldStarCanvas');
+  if (!capsuleGoldCanvas) return;
+  capsuleGoldCanvas.width  = window.innerWidth;
+  capsuleGoldCanvas.height = window.innerHeight;
+  capsuleGoldCtx = capsuleGoldCanvas.getContext('2d');
+  capsuleGoldStars = [];
+
+  spawnCapsuleGoldStar(); // 即1発
+  capsuleGoldInterval = setInterval(spawnCapsuleGoldStar, 5000);
+  if (!capsuleGoldRafId) capsuleGoldRafId = requestAnimationFrame(renderCapsuleGoldStars);
+}
+
+function stopCapsuleGoldStars() {
+  if (capsuleGoldInterval) { clearInterval(capsuleGoldInterval); capsuleGoldInterval = null; }
+  if (capsuleGoldRafId) { cancelAnimationFrame(capsuleGoldRafId); capsuleGoldRafId = null; }
+  if (capsuleGoldCtx && capsuleGoldCanvas) {
+    capsuleGoldCtx.clearRect(0, 0, capsuleGoldCanvas.width, capsuleGoldCanvas.height);
+  }
+  capsuleGoldStars = [];
+}
+
+function spawnCapsuleGoldStar() {
+  if (!capsuleGoldCanvas) return;
+  const vw = capsuleGoldCanvas.width;
+  const vh = capsuleGoldCanvas.height;
+
+  // ランダムな角度（0〜360度）
+  const angleDeg = Math.random() * 360;
+  const rad = angleDeg * Math.PI / 180;
+
+  // 画面外の4辺のどれかからスタート
+  const side = Math.floor(Math.random() * 4);
+  let sx, sy;
+  switch (side) {
+    case 0: sx = Math.random() * vw; sy = -20; break;         // 上
+    case 1: sx = vw + 20; sy = Math.random() * vh; break;     // 右
+    case 2: sx = Math.random() * vw; sy = vh + 20; break;     // 下
+    default: sx = -20; sy = Math.random() * vh; break;        // 左
+  }
+
+  const speed   = 0.55 + Math.random() * 0.5;
+  const travel  = vw * 0.5 + Math.random() * vw * 0.5;
+  const tailLen = 140 + Math.random() * 120;
+
+  capsuleGoldStars.push({
+    x: sx, y: sy,
+    vx: Math.cos(rad) * speed,
+    vy: Math.sin(rad) * speed,
+    tailLen,
+    travel,
+    traveled: 0,
+    trail: [],
+    maxTrail: Math.floor(tailLen / 3),
+    life: 1.0,
+    done: false,
+  });
+}
+
+function renderCapsuleGoldStars(now) {
+  if (!capsuleGoldCtx || !capsuleGoldCanvas) { capsuleGoldRafId = null; return; }
+  const cvs = capsuleGoldCanvas;
+  capsuleGoldCtx.clearRect(0, 0, cvs.width, cvs.height);
+
+  const alive = [];
+  for (const s of capsuleGoldStars) {
+    s.trail.unshift({ x: s.x, y: s.y });
+    if (s.trail.length > s.maxTrail) s.trail.pop();
+
+    s.x += s.vx * 16;
+    s.y += s.vy * 16;
+    s.traveled += Math.sqrt(s.vx * s.vx + s.vy * s.vy) * 16;
+
+    if (s.traveled > s.travel) s.life -= 0.035;
+    if (s.life <= 0) continue;
+    alive.push(s);
+
+    const ctx = capsuleGoldCtx;
+    ctx.save();
+    ctx.globalAlpha = Math.max(0, s.life);
+
+    // 金色の尾
+    if (s.trail.length > 1) {
+      for (let i = 0; i < s.trail.length - 1; i++) {
+        const t0 = s.trail[i];
+        const t1 = s.trail[i + 1];
+        const t = 1 - i / s.trail.length;
+        const alpha = t * t;
+        const width = t * 3.8;
+        // 金色グラデ：白金→深い金→琥珀
+        const r = 255;
+        const g = Math.round(200 + t * 55);   // 200→255
+        const b = Math.round(t * 60);          // 先端白金、末尾金
+        ctx.strokeStyle = `rgba(${r},${g},${b},${alpha})`;
+        ctx.lineWidth   = width;
+        ctx.lineCap     = 'round';
+        ctx.shadowColor = `rgba(255,210,30,${alpha * 0.9})`;
+        ctx.shadowBlur  = 10 * t;
+        ctx.beginPath();
+        ctx.moveTo(t0.x, t0.y);
+        ctx.lineTo(t1.x, t1.y);
+        ctx.stroke();
+      }
+    }
+
+    // 先端の輝く金玉
+    const headGrd = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, 8);
+    headGrd.addColorStop(0,   'rgba(255,255,255,1)');
+    headGrd.addColorStop(0.25,'rgba(255,250,200,1)');
+    headGrd.addColorStop(0.6, 'rgba(255,210,30,0.85)');
+    headGrd.addColorStop(1,   'rgba(200,140,0,0)');
+    ctx.shadowColor = 'rgba(255,220,50,1)';
+    ctx.shadowBlur  = 22;
+    ctx.fillStyle   = headGrd;
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, 5.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 十字スパークル（金色）
+    const sparkLen = 12 + s.life * 8;
+    ctx.strokeStyle = 'rgba(255,245,180,0.9)';
+    ctx.lineWidth   = 1.2;
+    ctx.shadowBlur  = 12;
+    ctx.shadowColor = 'rgba(255,220,50,0.8)';
+    ctx.beginPath();
+    ctx.moveTo(s.x - sparkLen, s.y); ctx.lineTo(s.x + sparkLen, s.y);
+    ctx.moveTo(s.x, s.y - sparkLen); ctx.lineTo(s.x, s.y + sparkLen);
+    ctx.stroke();
+
+    // 斜め十字（菱形スパークル）
+    const diag = sparkLen * 0.6;
+    ctx.strokeStyle = 'rgba(255,235,120,0.6)';
+    ctx.lineWidth   = 0.8;
+    ctx.beginPath();
+    ctx.moveTo(s.x - diag, s.y - diag); ctx.lineTo(s.x + diag, s.y + diag);
+    ctx.moveTo(s.x + diag, s.y - diag); ctx.lineTo(s.x - diag, s.y + diag);
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  capsuleGoldStars = alive;
+  capsuleGoldRafId = requestAnimationFrame(renderCapsuleGoldStars);
+}
+
+// localStorage代替：メモリ内保存（セッション中のみ）
+function saveCapsulesToStorage() { /* memory-only in this session */ }
+
+// カプセル開封チェック（保存ボックスを開いたとき）
+function checkCapsuleUnlocks() {
+  const now = Date.now();
+  capsuleLetters.forEach(c => {
+    if (!c.opened && now >= c.openAt) {
+      // デモ: 1件だけ自動で開封モーダル表示
+      if (!document.getElementById('capsuleOpenModal').classList.contains('show')) {
+        openCapsuleModal(c);
+      }
+    }
+  });
+}
+
+// 開封モーダル表示
+let currentCapsuleId = null;
+function openCapsuleModal(capsule) {
+  currentCapsuleId = capsule.id;
+  const daysPast = Math.floor((Date.now() - capsule.savedAt) / (1000 * 60 * 60 * 24));
+  document.getElementById('capsuleOpenDays').textContent =
+    daysPast === 0 ? 'たった今封じたきもち（デモ）' : `${daysPast}日前のきもち`;
+  document.getElementById('capsuleOpenMsg').textContent = capsule.text;
+  document.getElementById('capsuleOpenModal').classList.add('show');
+}
+
+function closeCapsuleModal(type) {
+  document.getElementById('capsuleOpenModal').classList.remove('show');
+  if (type === 'fade') {
+    showToast('🍃 またいつか、開いてみてね…');
+  }
+  // openedにマーク
+  if (currentCapsuleId) {
+    const c = capsuleLetters.find(x => x.id === currentCapsuleId);
+    if (c) c.opened = true;
+    renderSavedList();
+  }
+}
+
+// 勇気チェック表示
+function showCourageCheck() {
+  document.getElementById('capsuleOpenModal').classList.remove('show');
+  const step = courageSteps[Math.floor(Math.random() * courageSteps.length)];
+  document.getElementById('courageStepText').textContent = step;
+  document.getElementById('courageCheckModal').classList.add('show');
+}
+
+function courageDone() {
+  document.getElementById('courageCheckModal').classList.remove('show');
+  // 大きな演出
+  showToast('🌸 すごい！その一歩が全てのはじまり 💗');
+  const bear = document.getElementById('bear');
+  bear.className = 'bear-container happy';
+  setTimeout(() => {
+    bear.className = 'bear-container';
+    spawnHearts();
+  }, 600);
+  if (currentCapsuleId) {
+    const c = capsuleLetters.find(x => x.id === currentCapsuleId);
+    if (c) c.opened = true;
+    renderSavedList();
+  }
+}
+
+function courageLater() {
+  document.getElementById('courageCheckModal').classList.remove('show');
+  showToast('🌙 大丈夫。あなたのペースでいいよ 🐻');
+  if (currentCapsuleId) {
+    const c = capsuleLetters.find(x => x.id === currentCapsuleId);
+    if (c) c.opened = true;
+    renderSavedList();
+  }
+}
+
+function sendLetter() {
+  const msg = document.getElementById('msgInput').value.trim();
+  if (!msg) {
+    document.getElementById('msgInput').focus();
+    document.getElementById('msgInput').style.borderColor = '#e85a80';
+    setTimeout(() => document.getElementById('msgInput').style.borderColor = '#f4c0d0', 1000);
+    return;
+  }
+  currentMsg = msg;
+  document.getElementById('letterText').textContent = msg;
+  document.getElementById('letterOverlay').classList.add('open');
+  startLetterHearts();
+}
+
+function startLetterHearts() {
+  const container = document.getElementById('letterHearts');
+  container.innerHTML = '';
+  const heartEmojis = ['💗', '💕', '🩷', '✿', '🌸'];
+  for (let i = 0; i < 8; i++) {
+    const h = document.createElement('div');
+    h.className = 'letter-heart';
+    h.textContent = heartEmojis[i % heartEmojis.length];
+    h.style.left = (10 + Math.random() * 80) + '%';
+    h.style.bottom = '0';
+    h.style.animationDelay = (Math.random() * 2) + 's';
+    h.style.animationDuration = (2 + Math.random() * 2) + 's';
+    container.appendChild(h);
+  }
+}
+
+function saveLetter() {
+  if (!currentMsg) return;
+  const now = new Date();
+  const dateStr = `${now.getMonth()+1}/${now.getDate()} ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
+  savedLetters.unshift({ text: currentMsg, date: dateStr, id: Date.now() });
+  updateMailCount();
+  renderSavedList();
+  // ラブレターオーバーレイを閉じてから回転演出へ
+  document.getElementById('letterOverlay').classList.remove('open');
+  startSpinReceive(currentMsg);
+  document.getElementById('msgInput').value = '';
+  currentMsg = '';
+}
+
+// ===== 回転受け取り演出 =====
+let spinTimer = null;
+function startSpinReceive(msg) {
+  const overlay    = document.getElementById('spinOverlay');
+  const spinPhase  = document.getElementById('spinPhase');
+  const finishPhase = document.getElementById('finishPhase');
+  const bar        = document.getElementById('spinBar');
+  const label      = document.getElementById('spinLabel');
+
+  // リセット
+  finishPhase.classList.remove('show');
+  spinPhase.style.display = 'flex';
+  spinPhase.style.flexDirection = 'column';
+  spinPhase.style.alignItems = 'center';
+  spinPhase.style.gap = '18px';
+  bar.style.transform = 'scaleX(1)';
+  overlay.classList.add('active');
+  // 流れ星は使わず白い羽を開始
+  startFeathers();
+
+  const duration = 10000;
+  const start = performance.now();
+
+  const labels = [
+    'きもちを受け取っています… 🐻',
+    'もうすぐ届く… 💌',
+    'もうちょっとだよ… 🌸',
+    'ドキドキ…！ 💗',
+    'もうすぐ… 🍓',
+  ];
+
+  let lastHeartTime = 0;
+
+  function tick(now) {
+    const elapsed = now - start;
+    const ratio   = Math.min(elapsed / duration, 1);
+    bar.style.transform = `scaleX(${1 - ratio})`;
+    label.textContent = labels[Math.floor(ratio * labels.length)] || labels[labels.length - 1];
+
+    const heartInterval = 700 - ratio * 200;
+    if (now - lastHeartTime > heartInterval) {
+      spawnSpinHeart();
+      lastHeartTime = now;
+    }
+
+    if (ratio < 1) {
+      spinTimer = requestAnimationFrame(tick);
+    } else {
+      setTimeout(() => {
+        spinPhase.style.display = 'none';
+        document.getElementById('finishMsgText').textContent = msg;
+        finishPhase.classList.add('show');
+        startRainbowAnimation();
+        // 羽は完了後も続ける
+        const bear = document.getElementById('bear');
+        bear.className = 'bear-container happy';
+        setTimeout(() => bear.className = 'bear-container', 1200);
+      }, 400);
+    }
+  }
+  spinTimer = requestAnimationFrame(tick);
+}
+
+function spawnSpinHeart() {
+  const wrap = document.getElementById('spinBearWrap');
+  if (!wrap) return;
+  // 桜は除外、ハートのみ
+  const emojis = ['💗','💕','🩷','💖','💓','💘','💝'];
+  const h = document.createElement('div');
+  h.className = 'spin-heart';
+  const angle = Math.random() * Math.PI * 2;
+  const dist  = 55 + Math.random() * 55;
+  h.style.setProperty('--tx', `${Math.cos(angle)*dist}px`);
+  h.style.setProperty('--ty', `${Math.sin(angle)*dist}px`);
+  h.style.left = '50%';
+  h.style.top  = '50%';
+  h.style.marginLeft = '-9px';
+  h.style.marginTop  = '-9px';
+  h.style.fontSize = (14 + Math.random() * 8) + 'px';
+  h.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+  wrap.appendChild(h);
+  setTimeout(() => h.remove(), 1300);
+}
+
+function spawnSpinStar(ratio) {
+  const wrap = document.getElementById('spinBearWrap');
+  if (!wrap) return;
+
+  const maxScale = 0.8 + ratio * 1.8;
+  const dist     = 60 + ratio * 110;
+  const dur      = 0.9 + ratio * 0.7;
+  const sz       = 14 + ratio * 22; // 14px→36px
+
+  const s = document.createElement('div');
+  s.className = 'spin-star';
+  const angle = Math.random() * Math.PI * 2;
+  s.style.setProperty('--tx', `${Math.cos(angle)*dist}px`);
+  s.style.setProperty('--ty', `${Math.sin(angle)*dist}px`);
+  s.style.setProperty('--maxScale', maxScale);
+  s.style.setProperty('--dur', `${dur}s`);
+  s.style.left = '50%';
+  s.style.top  = '50%';
+  s.style.width  = sz + 'px';
+  s.style.height = sz + 'px';
+  s.style.marginLeft = -(sz/2) + 'px';
+  s.style.marginTop  = -(sz/2) + 'px';
+
+  // 金〜白金グラデーションのSVG星
+  const gold1 = ratio > 0.6 ? '#fff8e0' : '#ffe88a';
+  const gold2 = ratio > 0.6 ? '#ffd700' : '#e8a800';
+  const gold3 = ratio > 0.6 ? '#c87800' : '#a06000';
+  s.innerHTML = `<svg viewBox="0 0 24 24" width="${sz}" height="${sz}">
+    <defs>
+      <radialGradient id="sg${Date.now()%9999}" cx="40%" cy="30%" r="65%">
+        <stop offset="0%" stop-color="${gold1}"/>
+        <stop offset="45%" stop-color="${gold2}"/>
+        <stop offset="100%" stop-color="${gold3}"/>
+      </radialGradient>
+    </defs>
+    <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
+      fill="url(#sg${Date.now()%9999})"
+      stroke="rgba(255,240,120,0.7)" stroke-width="0.5"/>
+  </svg>`;
+
+  wrap.appendChild(s);
+  setTimeout(() => s.remove(), dur * 1000 + 100);
+}
+
+// 流れ星を画面に飛ばす
+// ===== Canvas流れ星システム =====
+let shootingStarCanvas = null;
+let shootingCtx = null;
+let shootingStars = [];
+let shootingRafId = null;
+let shootingStarInterval = null;
+let lastStarSpawnTime = 0;
+
+function initShootingCanvas() {
+  shootingStarCanvas = document.getElementById('shootingStarCanvas');
+  shootingStarCanvas.width  = window.innerWidth;
+  shootingStarCanvas.height = window.innerHeight;
+  shootingCtx = shootingStarCanvas.getContext('2d');
+}
+
+function startShootingStars() {
+  if (!shootingStarCanvas) initShootingCanvas();
+  shootingStarCanvas.classList.add('active');
+  shootingStars = [];
+  lastStarSpawnTime = performance.now();
+
+  // 7秒に1度のタイマー
+  spawnShootingStar(); // 即座に1発
+  shootingStarInterval = setInterval(spawnShootingStar, 7000);
+
+  if (!shootingRafId) shootingRafId = requestAnimationFrame(renderShootingStars);
+}
+
+function stopShootingStars() {
+  if (shootingStarInterval) { clearInterval(shootingStarInterval); shootingStarInterval = null; }
+  if (shootingRafId) { cancelAnimationFrame(shootingRafId); shootingRafId = null; }
+  if (shootingStarCanvas) {
+    shootingStarCanvas.classList.remove('active');
+    if (shootingCtx) shootingCtx.clearRect(0, 0, shootingStarCanvas.width, shootingStarCanvas.height);
+  }
+  shootingStars = [];
+}
+
+function spawnShootingStar() {
+  const overlay = document.getElementById('spinOverlay');
+  if (!overlay || !overlay.classList.contains('active')) return;
+
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+
+  // 四方八方からランダムに発射（0〜360度）
+  const angleDeg = Math.random() * 360;
+  const rad = angleDeg * Math.PI / 180;
+
+  // 画面外の開始位置：4辺のどれかからランダムに
+  const side = Math.floor(Math.random() * 4); // 0=上 1=右 2=下 3=左
+  let sx, sy;
+  switch(side) {
+    case 0: sx = Math.random() * vw;      sy = -20;       break; // 上辺
+    case 1: sx = vw + 20;                 sy = Math.random() * vh; break; // 右辺
+    case 2: sx = Math.random() * vw;      sy = vh + 20;   break; // 下辺
+    case 3: sx = -20;                     sy = Math.random() * vh; break; // 左辺
+  }
+
+  // 移動距離・速度
+  const speed  = 0.6 + Math.random() * 0.5;   // px/ms（速すぎず遅すぎず）
+  const travel = vw * 0.55 + Math.random() * vw * 0.5;
+  const tailLen = 120 + Math.random() * 140;   // 尾の長さ 120〜260px
+
+  shootingStars.push({
+    x: sx, y: sy,
+    vx: Math.cos(rad) * speed,
+    vy: Math.sin(rad) * speed,
+    tailLen,
+    travel,
+    traveled: 0,
+    // 尾のトレイル（過去座標）
+    trail: [],
+    maxTrail: Math.floor(tailLen / 3), // トレイルの点数
+    life: 1.0,  // フェードアウト用
+    done: false,
+  });
+}
+
+function renderShootingStars(now) {
+  if (!shootingCtx) { shootingRafId = null; return; }
+  const cvs = shootingStarCanvas;
+  shootingCtx.clearRect(0, 0, cvs.width, cvs.height);
+
+  const alive = [];
+  for (const s of shootingStars) {
+    // 座標更新
+    s.trail.unshift({ x: s.x, y: s.y });
+    if (s.trail.length > s.maxTrail) s.trail.pop();
+
+    s.x += s.vx * 16; // ~60fps想定
+    s.y += s.vy * 16;
+    s.traveled += Math.sqrt(s.vx * s.vx + s.vy * s.vy) * 16;
+
+    // 旅距離を超えたらフェードアウト
+    if (s.traveled > s.travel) {
+      s.life -= 0.04;
+    }
+    if (s.life <= 0) continue;
+    alive.push(s);
+
+    // ===== 描画 =====
+    const ctx = shootingCtx;
+    ctx.save();
+    ctx.globalAlpha = Math.max(0, s.life);
+
+    // 尾を描く：グラデーションラインで自然な尾
+    if (s.trail.length > 1) {
+      for (let i = 0; i < s.trail.length - 1; i++) {
+        const t0 = s.trail[i];
+        const t1 = s.trail[i + 1];
+        const t = 1 - i / s.trail.length; // 先端→末尾で0→1
+        const alpha = t * t;              // 二乗で急激に減衰（自然な尾）
+        const width = t * 3.5;           // 先端太く、末尾細く
+
+        // 尾のグラデーション色
+        const r = Math.round(255);
+        const g = Math.round(200 + t * 55); // 215〜255
+        const b = Math.round(t * 120);       // 先端=白に近い金、末尾=透明
+        ctx.strokeStyle = `rgba(${r},${g},${b},${alpha})`;
+        ctx.lineWidth   = width;
+        ctx.lineCap     = 'round';
+        ctx.shadowColor = `rgba(255,200,50,${alpha * 0.8})`;
+        ctx.shadowBlur  = 8 * t;
+        ctx.beginPath();
+        ctx.moveTo(t0.x, t0.y);
+        ctx.lineTo(t1.x, t1.y);
+        ctx.stroke();
+      }
+    }
+
+    // 先端の輝く玉
+    const headGrd = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, 7);
+    headGrd.addColorStop(0,   'rgba(255,255,255,1)');
+    headGrd.addColorStop(0.3, 'rgba(255,240,150,1)');
+    headGrd.addColorStop(0.7, 'rgba(255,180,0,0.7)');
+    headGrd.addColorStop(1,   'rgba(255,140,0,0)');
+    ctx.shadowColor = 'rgba(255,220,50,0.95)';
+    ctx.shadowBlur  = 18;
+    ctx.fillStyle   = headGrd;
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, 5, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 先端の十字スパークル
+    const sparkLen = 10 + s.life * 6;
+    ctx.strokeStyle = 'rgba(255,255,220,0.85)';
+    ctx.lineWidth = 1;
+    ctx.shadowBlur = 10;
+    ctx.beginPath();
+    ctx.moveTo(s.x - sparkLen, s.y); ctx.lineTo(s.x + sparkLen, s.y);
+    ctx.moveTo(s.x, s.y - sparkLen); ctx.lineTo(s.x, s.y + sparkLen);
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  shootingStars = alive;
+  shootingRafId = requestAnimationFrame(renderShootingStars);
+}
+
+// ===== 虹アニメーション =====
+let rainbowRafId = null;
+let rainbowStartTime = null;
+
+function startRainbowAnimation() {
+  const canvas = document.getElementById('rainbowCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width;
+  const H = canvas.height;
+
+  // 前回のアニメーションをリセット
+  if (rainbowRafId) cancelAnimationFrame(rainbowRafId);
+  ctx.clearRect(0, 0, W, H);
+  rainbowStartTime = null;
+
+  // 虹のアーク設定（複数本重ねてぼわっと）
+  const arcs = [
+    { r: 140, width: 28, colors: ['rgba(255,80,80,',  'rgba(255,80,80,0)']  },
+    { r: 118, width: 28, colors: ['rgba(255,160,40,', 'rgba(255,160,40,0)'] },
+    { r: 96,  width: 26, colors: ['rgba(255,230,40,', 'rgba(255,230,40,0)'] },
+    { r: 74,  width: 24, colors: ['rgba(60,210,80,',  'rgba(60,210,80,0)']  },
+    { r: 54,  width: 22, colors: ['rgba(40,170,255,', 'rgba(40,170,255,0)'] },
+    { r: 36,  width: 20, colors: ['rgba(120,80,255,', 'rgba(120,80,255,0)'] },
+  ];
+
+  // 虹の中心：キャンバス下辺中央
+  const cx = W / 2;
+  const cy = H + 10;
+  const totalDuration = 3800; // ms かけてじんわり表示
+
+  function drawFrame(timestamp) {
+    if (!rainbowStartTime) rainbowStartTime = timestamp;
+    const elapsed = timestamp - rainbowStartTime;
+    const progress = Math.min(elapsed / totalDuration, 1); // 0→1
+
+    ctx.clearRect(0, 0, W, H);
+
+    arcs.forEach((arc, i) => {
+      // 各アークが少しずつ遅れて出現（stagger）
+      const stagger = i * 0.08;
+      const arcProgress = Math.max(0, Math.min((progress - stagger) / (1 - stagger * arcs.length * 0.3), 1));
+      if (arcProgress <= 0) return;
+
+      // ぼかし（大きめのblur）
+      ctx.save();
+      ctx.filter = `blur(${14 - i * 0.5}px)`;
+
+      // 不透明度をじんわり上げる（easeOut）
+      const eased = 1 - Math.pow(1 - arcProgress, 2.5);
+      const alpha = eased * 0.55;
+
+      // アークを円弧として描く
+      const grad = ctx.createRadialGradient(cx, cy, arc.r - arc.width / 2, cx, cy, arc.r + arc.width / 2);
+      grad.addColorStop(0,   arc.colors[0] + '0)');
+      grad.addColorStop(0.3, arc.colors[0] + (alpha * 0.7).toFixed(3) + ')');
+      grad.addColorStop(0.5, arc.colors[0] + alpha.toFixed(3) + ')');
+      grad.addColorStop(0.7, arc.colors[0] + (alpha * 0.7).toFixed(3) + ')');
+      grad.addColorStop(1,   arc.colors[1]);
+
+      ctx.beginPath();
+      ctx.arc(cx, cy, arc.r, Math.PI, 2 * Math.PI); // 上半円
+      ctx.lineWidth = arc.width;
+      ctx.strokeStyle = grad;
+      ctx.stroke();
+      ctx.restore();
+    });
+
+    if (progress < 1) {
+      rainbowRafId = requestAnimationFrame(drawFrame);
+    }
+  }
+
+  rainbowRafId = requestAnimationFrame(drawFrame);
+}
+
+// ===== 白い羽フワフワ =====
+let featherRafId = null;
+let featherInterval = null;
+let feathers = [];
+
+function startFeathers() {
+  stopFeathers();
+  feathers = [];
+  // shootingStarCanvas を表示状態にする
+  const cvs = document.getElementById('shootingStarCanvas');
+  if (cvs) {
+    cvs.width  = window.innerWidth;
+    cvs.height = window.innerHeight;
+    cvs.classList.add('active');
+  }
+  // 最初の1枚をすぐ出す
+  spawnFeather();
+  // 1.8秒ごとに新しい羽
+  featherInterval = setInterval(spawnFeather, 1800);
+  if (!featherRafId) featherRafId = requestAnimationFrame(renderFeathers);
+}
+
+function stopFeathers() {
+  if (featherInterval) { clearInterval(featherInterval); featherInterval = null; }
+  if (featherRafId)    { cancelAnimationFrame(featherRafId); featherRafId = null; }
+  feathers = [];
+  const cvs = document.getElementById('shootingStarCanvas');
+  if (cvs) {
+    cvs.classList.remove('active');
+    cvs.getContext('2d').clearRect(0, 0, cvs.width, cvs.height);
+  }
+}
+
+function spawnFeather() {
+  const vw = window.innerWidth;
+  // 画面上部からランダムなX座標でスタート
+  feathers.push({
+    x:     Math.random() * vw,
+    y:     -40,
+    size:  18 + Math.random() * 22,       // 羽サイズ 18〜40px
+    speedY: 0.5 + Math.random() * 0.4,    // 落下速度（遅め 8秒想定）
+    drift:  (Math.random() - 0.5) * 0.5,  // 左右の漂い
+    angle:  Math.random() * Math.PI * 2,  // 初期回転
+    rotSpeed: (Math.random() - 0.5) * 0.018, // 回転速度
+    swayAmp:  30 + Math.random() * 40,    // 横揺れ幅
+    swayFreq: 0.4 + Math.random() * 0.4,  // 横揺れ周波数
+    swayOffset: Math.random() * Math.PI * 2,
+    alpha: 0,        // フェードイン
+    life:  1.0,
+    startTime: performance.now(),
+  });
+}
+
+function drawFeather(ctx, f, now) {
+  const elapsed = (now - f.startTime) / 1000;
+
+  const fadeIn  = Math.min(elapsed / 0.8, 1);
+  const fadeOut = elapsed > 7 ? Math.max(0, 1 - (elapsed - 7) / 1.5) : 1;
+  const alpha   = fadeIn * fadeOut;
+
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.translate(f.x, f.y);
+  ctx.rotate(f.angle);
+
+  const s = f.size;
+
+  // ===== 天使の羽（左右対称、上部ぷっくり・下部とがり） =====
+
+  // --- 羽の外輪郭（塗り） ---
+  // 左翼
+  ctx.beginPath();
+  ctx.moveTo(0, s * 0.55);                                      // 下先端
+  ctx.bezierCurveTo(-s*0.08, s*0.3,  -s*0.55, s*0.1,  -s*0.6, -s*0.05); // 左外縁下→中
+  ctx.bezierCurveTo(-s*0.65, -s*0.25, -s*0.55, -s*0.5, -s*0.3, -s*0.55); // 左外縁上丸み
+  ctx.bezierCurveTo(-s*0.15, -s*0.58, -s*0.05, -s*0.5, 0, -s*0.45);      // 上中央へ
+  ctx.closePath();
+  const lgLeft = ctx.createLinearGradient(-s*0.6, -s*0.55, 0, s*0.55);
+  lgLeft.addColorStop(0,   'rgba(255,255,255,0.95)');
+  lgLeft.addColorStop(0.4, 'rgba(240,248,255,0.88)');
+  lgLeft.addColorStop(1,   'rgba(220,235,255,0.65)');
+  ctx.fillStyle = lgLeft;
+  ctx.fill();
+
+  // 右翼
+  ctx.beginPath();
+  ctx.moveTo(0, s * 0.55);
+  ctx.bezierCurveTo(s*0.08, s*0.3,   s*0.55, s*0.1,   s*0.6,  -s*0.05);
+  ctx.bezierCurveTo(s*0.65, -s*0.25,  s*0.55, -s*0.5,  s*0.3,  -s*0.55);
+  ctx.bezierCurveTo(s*0.15, -s*0.58,  s*0.05, -s*0.5,  0,      -s*0.45);
+  ctx.closePath();
+  const lgRight = ctx.createLinearGradient(s*0.6, -s*0.55, 0, s*0.55);
+  lgRight.addColorStop(0,   'rgba(255,255,255,0.95)');
+  lgRight.addColorStop(0.4, 'rgba(240,248,255,0.88)');
+  lgRight.addColorStop(1,   'rgba(220,235,255,0.65)');
+  ctx.fillStyle = lgRight;
+  ctx.fill();
+
+  // --- 羽の外枠（アウトライン） ---
+  // 左翼
+  ctx.beginPath();
+  ctx.moveTo(0, s * 0.55);
+  ctx.bezierCurveTo(-s*0.08, s*0.3,  -s*0.55, s*0.1,  -s*0.6, -s*0.05);
+  ctx.bezierCurveTo(-s*0.65, -s*0.25, -s*0.55, -s*0.5, -s*0.3, -s*0.55);
+  ctx.bezierCurveTo(-s*0.15, -s*0.58, -s*0.05, -s*0.5, 0, -s*0.45);
+  ctx.strokeStyle = 'rgba(255,255,255,0.85)';
+  ctx.lineWidth   = 1.2;
+  ctx.stroke();
+
+  // 右翼
+  ctx.beginPath();
+  ctx.moveTo(0, s * 0.55);
+  ctx.bezierCurveTo(s*0.08, s*0.3,   s*0.55, s*0.1,   s*0.6,  -s*0.05);
+  ctx.bezierCurveTo(s*0.65, -s*0.25,  s*0.55, -s*0.5,  s*0.3,  -s*0.55);
+  ctx.bezierCurveTo(s*0.15, -s*0.58,  s*0.05, -s*0.5,  0,      -s*0.45);
+  ctx.strokeStyle = 'rgba(255,255,255,0.85)';
+  ctx.lineWidth   = 1.2;
+  ctx.stroke();
+
+  // --- 羽毛の層線（左） ---
+  const layersL = [
+    { sy: -s*0.1,  ex: -s*0.58, ey: -s*0.08 },
+    { sy:  s*0.05, ex: -s*0.54, ey:  s*0.05 },
+    { sy:  s*0.2,  ex: -s*0.42, ey:  s*0.18 },
+    { sy:  s*0.35, ex: -s*0.25, ey:  s*0.32 },
+  ];
+  layersL.forEach(l => {
+    ctx.beginPath();
+    ctx.moveTo(-s*0.02, l.sy);
+    ctx.quadraticCurveTo((l.ex)*0.6, l.ey - s*0.04, l.ex, l.ey);
+    ctx.strokeStyle = 'rgba(255,255,255,0.55)';
+    ctx.lineWidth   = 0.9;
+    ctx.stroke();
+  });
+
+  // --- 羽毛の層線（右） ---
+  const layersR = [
+    { sy: -s*0.1,  ex:  s*0.58, ey: -s*0.08 },
+    { sy:  s*0.05, ex:  s*0.54, ey:  s*0.05 },
+    { sy:  s*0.2,  ex:  s*0.42, ey:  s*0.18 },
+    { sy:  s*0.35, ex:  s*0.25, ey:  s*0.32 },
+  ];
+  layersR.forEach(l => {
+    ctx.beginPath();
+    ctx.moveTo(s*0.02, l.sy);
+    ctx.quadraticCurveTo(l.ex*0.6, l.ey - s*0.04, l.ex, l.ey);
+    ctx.strokeStyle = 'rgba(255,255,255,0.55)';
+    ctx.lineWidth   = 0.9;
+    ctx.stroke();
+  });
+
+  // --- 中央の軸 ---
+  ctx.beginPath();
+  ctx.moveTo(0, -s*0.45);
+  ctx.bezierCurveTo(s*0.02, 0, s*0.01, s*0.3, 0, s*0.55);
+  ctx.strokeStyle = 'rgba(255,255,255,0.9)';
+  ctx.lineWidth   = 1.4;
+  ctx.stroke();
+
+  // --- 中心の光輝 ---
+  const grd = ctx.createRadialGradient(0, 0, 0, 0, 0, s*0.15);
+  grd.addColorStop(0,   'rgba(255,255,255,0.95)');
+  grd.addColorStop(0.5, 'rgba(240,248,255,0.4)');
+  grd.addColorStop(1,   'rgba(255,255,255,0)');
+  ctx.beginPath();
+  ctx.arc(0, 0, s*0.15, 0, Math.PI*2);
+  ctx.fillStyle = grd;
+  ctx.fill();
+
+  ctx.restore();
+}
+
+function renderFeathers(now) {
+  const overlay = document.getElementById('spinOverlay');
+  if (!overlay || !overlay.classList.contains('active')) {
+    featherRafId = null;
+    return;
+  }
+
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+
+  // Canvas がないので DOM 上に直接描く（existing shootingStarCanvas を再利用 or 独自Canvas）
+  // shootingStarCanvas を使用
+  const cvs = document.getElementById('shootingStarCanvas');
+  if (!cvs) { featherRafId = null; return; }
+
+  // サイズ同期
+  if (cvs.width !== vw || cvs.height !== vh) {
+    cvs.width = vw; cvs.height = vh;
+  }
+  const ctx = cvs.getContext('2d');
+  ctx.clearRect(0, 0, vw, vh);
+
+  const alive = [];
+  for (const f of feathers) {
+    const elapsed = (now - f.startTime) / 1000;
+    if (elapsed > 8.5) continue; // 8.5秒で消える
+
+    // 位置更新（8秒でvh分落下）
+    const baseSpeed = vh / (8 * 60); // 60fps想定で8秒
+    f.y += baseSpeed + f.drift * 0.3;
+    // 左右のゆらぎ（sway）
+    f.x += Math.sin(elapsed * f.swayFreq * Math.PI * 2 + f.swayOffset) * 0.6;
+    // 回転
+    f.angle += f.rotSpeed;
+
+    if (f.y < vh + 60) {
+      alive.push(f);
+      drawFeather(ctx, f, now);
+    }
+  }
+  feathers = alive;
+
+  featherRafId = requestAnimationFrame(renderFeathers);
+}
+
+function stopRainbow() {
+  if (rainbowRafId) { cancelAnimationFrame(rainbowRafId); rainbowRafId = null; }
+  const canvas = document.getElementById('rainbowCanvas');
+  if (canvas) canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function closeSpinOverlay() {
+  document.getElementById('spinOverlay').classList.remove('active');
+  document.getElementById('finishPhase').classList.remove('show');
+  if (spinTimer) cancelAnimationFrame(spinTimer);
+  stopShootingStars();
+  stopRainbow();
+  stopFeathers();
+}
+
+function deleteLetter() {
+  showToast('🗑️ そっと消えていったよ…');
+  closeLetter();
+  document.getElementById('msgInput').value = '';
+  currentMsg = '';
+}
+
+function closeLetter() {
+  document.getElementById('letterOverlay').classList.remove('open');
+  const bear = document.getElementById('bear');
+  bear.className = 'bear-container happy';
+  setTimeout(() => bear.className = 'bear-container', 1000);
+}
+
+function toggleSavedBox() {
+  const box = document.getElementById('savedBox');
+  box.classList.toggle('open');
+  if (box.classList.contains('open')) {
+    checkCapsuleUnlocks();
+    renderSavedList();
+  }
+}
+
+function renderSavedList() {
+  const list = document.getElementById('savedList');
+  const empty = document.getElementById('savedEmpty');
+  list.innerHTML = '';
+  const hasAny = savedLetters.length > 0 || capsuleLetters.length > 0;
+  if (!hasAny) {
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  // タイムカプセルを上に表示
+  capsuleLetters.forEach(capsule => {
+    const now = Date.now();
+    const isUnlocked = now >= capsule.openAt;
+    const item = document.createElement('div');
+    item.className = 'capsule-item' + (isUnlocked ? ' unlocked' : '');
+    const statusLabel = isUnlocked
+      ? `<span class="capsule-status status-open">📖 今すぐ読み返せるよ</span>`
+      : `<span class="capsule-status status-sealed">⏳ 7日後に読み返せるよ</span>`;
+    item.innerHTML = `
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+          ${statusLabel}
+        </div>
+        <div class="saved-item-text">⏳ ${isUnlocked ? capsule.text : '…（7日後に開封）'}</div>
+        <div class="saved-item-date">読み返し日: ${capsule.openDateStr}</div>
+      </div>
+      ${isUnlocked ? `<button class="saved-item-del" style="color:#8898e8" onclick="openCapsuleModal(capsuleLetters.find(c=>c.id==${capsule.id}))" title="開封">💌</button>` : ''}
+      <button class="saved-item-del" onclick="removeCapsule(${capsule.id})" title="削除">✕</button>
+    `;
+    list.appendChild(item);
+  });
+
+  // 通常保存
+  savedLetters.forEach(letter => {
+    const item = document.createElement('div');
+    item.className = 'saved-item';
+    item.innerHTML = `
+      <div style="flex:1">
+        <div class="saved-item-text">💌 ${letter.text}</div>
+        <div class="saved-item-date">${letter.date}</div>
+      </div>
+      <button class="saved-item-del" onclick="removeFromSaved(${letter.id})" title="削除">✕</button>
+    `;
+    list.appendChild(item);
+  });
+}
+
+function removeCapsule(id) {
+  capsuleLetters = capsuleLetters.filter(c => c.id !== id);
+  updateMailCount();
+  renderSavedList();
+  showToast('🗑️ カプセルを消去しました');
+}
+
+function removeFromSaved(id) {
+  savedLetters = savedLetters.filter(l => l.id !== id);
+  updateMailCount();
+  renderSavedList();
+  showToast('🗑️ 削除しました');
+}
+
+function updateMailCount() {
+  const total = savedLetters.length + capsuleLetters.length;
+  const el = document.getElementById('mailCount');
+  el.textContent = total;
+  const btn = document.getElementById('mailboxBtn');
+  // カプセルがある場合は紫寄りの色
+  const hasCapsule = capsuleLetters.length > 0;
+  btn.style.background = total > 0
+    ? (hasCapsule ? 'linear-gradient(135deg, #9888e8, #7868c8)' : 'linear-gradient(135deg, #f4a8c0, #e86898)')
+    : 'linear-gradient(135deg, #fce8f0, #f4b8cc)';
+  btn.style.color = total > 0 ? 'white' : '#c2607a';
+}
+
+let toastTimer = null;
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+// クマをランダム位置に移動
+const bearPositions = [
+  { left: '50%', top: '80px',  marginLeft: '-60px' },   // 上中央
+  { left: '20px', top: '130px', marginLeft: '0' },       // 左中
+  { left: null, right: '20px', top: '130px', marginLeft: '0' }, // 右中
+  { left: '50%', top: '180px', marginLeft: '-60px' },    // 中央
+  { left: '15px', top: '60px',  marginLeft: '0' },       // 左上
+  { left: null, right: '15px', top: '60px', marginLeft: '0' },  // 右上
+  { left: '50%', top: '30px',  marginLeft: '-60px' },    // 最上部
+  { left: '25%', top: '150px', marginLeft: '-60px' },    // 左寄り中
+  { left: '75%', top: '150px', marginLeft: '-60px' },    // 右寄り中
+];
+let lastBearPos = -1;
+
+function moveBear() {
+  const bear = document.getElementById('bear');
+  const stage = document.querySelector('.stage');
+  const sw = stage.offsetWidth;
+  const sh = stage.offsetHeight;
+
+  // ランダムに位置を選ぶ（直前と同じ位置は避ける）
+  let posIdx;
+  do { posIdx = Math.floor(Math.random() * bearPositions.length); }
+  while (posIdx === lastBearPos);
+  lastBearPos = posIdx;
+
+  // 座標をランダム生成（stage内に収める）
+  const bw = 120, bh = 140;
+  const margin = 10;
+  const rx = Math.floor(Math.random() * (sw - bw - margin * 2)) + margin;
+  const ry = Math.floor(Math.random() * (sh - bh - margin * 2)) + margin;
+
+  bear.style.left   = rx + 'px';
+  bear.style.top    = ry + 'px';
+  bear.style.right  = 'auto';
+  bear.style.bottom = 'auto';
+  bear.style.marginLeft = '0';
+}
+
+// 初期位置セット
+(function initBear() {
+  const bear = document.getElementById('bear');
+  const stage = document.querySelector('.stage');
+  const sw = stage.offsetWidth || 320;
+  const sh = stage.offsetHeight || 320;
+  bear.style.left = Math.round((sw - 120) / 2) + 'px';
+  bear.style.top  = Math.round(sh - 140 - 100) + 'px';
+})();
+
+createPetals();
+</script>
+
+<!-- タイムカプセル封印演出 -->
+<div class="capsule-overlay" id="capsuleOverlay">
+  <div class="capsule-stars" id="capsuleStars"></div>
+  <canvas id="capsuleGoldStarCanvas"></canvas>
+  <div class="capsule-title">タイムカプセル 🌙</div>
+  <div class="capsule-subtitle">この言葉を、7日後にもう一度読み返せるよ</div>
+  <div class="capsule-date-card">
+    <div class="capsule-date-label">読み返せる日</div>
+    <div class="capsule-date-value" id="capsuleOpenDate">—</div>
+    <div class="capsule-date-sub">7日後に、この言葉をもう一度読み返せるよ 🐻</div>
+  </div>
+  <div class="capsule-msg-preview" id="capsuleMsgPreview">…</div>
+  <button class="capsule-close-btn" onclick="closeCapsuleOverlay()">夜空にそっと預けた 🌟</button>
+</div>
+
+<!-- タイムカプセル開封モーダル -->
+<div class="capsule-open-modal" id="capsuleOpenModal">
+  <div class="capsule-open-card">
+    <span class="capsule-open-emoji">📖</span>
+    <div class="capsule-open-title">7日前の言葉を読み返そう</div>
+    <div class="capsule-open-days" id="capsuleOpenDays">7日前のきもち</div>
+    <div class="capsule-open-msg" id="capsuleOpenMsg">…</div>
+    <div class="capsule-open-question">7日前に書いた言葉、読んでみてどう感じた？<br>気持ちがまだ続いているなら…🐻</div>
+    <div class="capsule-open-btns">
+      <button class="capsule-courage-btn" onclick="showCourageCheck()">💪 まだある！背中を押して</button>
+      <button class="capsule-keep-btn" onclick="closeCapsuleModal('fade')">🍃 今は大切にしまう</button>
+    </div>
+    <button class="capsule-modal-close" onclick="closeCapsuleModal('close')">そっと閉じる</button>
+  </div>
+</div>
+
+<!-- 勇気確認画面 -->
+<div class="courage-check-modal" id="courageCheckModal">
+  <div class="courage-card">
+    <span class="courage-emoji">🌸</span>
+    <div class="courage-title">小さな一歩から</div>
+    <div class="courage-msg">いきなり全部言わなくていい。<br>今日できる小さな一歩を選んでみて。</div>
+    <div class="courage-step">
+      <div class="courage-step-label">今日のチャレンジ ✨</div>
+      <div class="courage-step-text" id="courageStepText">目が合ったら、笑いかけてみよう 🙂</div>
+    </div>
+    <button class="courage-done-btn" onclick="courageDone()">🎉 やってみる！</button>
+    <button class="courage-later-btn" onclick="courageLater()">もう少しだけ考える…</button>
+  </div>
+</div>
+
+<!-- 流れ星キャンバス（オーバーレイ外、全画面） -->
+<canvas id="shootingStarCanvas"></canvas>
+
+<!-- クマ回転・受取り演出オーバーレイ -->
+<div class="spin-overlay" id="spinOverlay">
+
+  <!-- 回転中フェーズ -->
+  <div id="spinPhase">
+    <div class="spin-bear-wrap" id="spinBearWrap">
+      <div class="spin-ring"></div>
+      <div class="spin-ring-2"></div>
+      <svg class="spin-bear-svg" viewBox="0 0 120 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <!-- 頭・体グラデ -->
+          <radialGradient id="sh1" cx="38%" cy="32%" r="62%">
+            <stop offset="0%" stop-color="#fdecd8"/><stop offset="55%" stop-color="#f0c89a"/><stop offset="100%" stop-color="#d9a06a"/>
+          </radialGradient>
+          <!-- 体グラデ -->
+          <radialGradient id="shBody" cx="38%" cy="28%" r="65%">
+            <stop offset="0%" stop-color="#fde8c8"/><stop offset="60%" stop-color="#e8b87a"/><stop offset="100%" stop-color="#c8904a"/>
+          </radialGradient>
+          <!-- 帽子グラデ -->
+          <radialGradient id="sh2" cx="40%" cy="25%" r="68%">
+            <stop offset="0%" stop-color="#f08898"/><stop offset="55%" stop-color="#d86070"/><stop offset="100%" stop-color="#a83848"/>
+          </radialGradient>
+          <!-- 耳グラデ -->
+          <radialGradient id="sh3" cx="35%" cy="30%" r="70%">
+            <stop offset="0%" stop-color="#fdecd8"/><stop offset="100%" stop-color="#c8884a"/>
+          </radialGradient>
+          <!-- 鼻グラデ -->
+          <radialGradient id="sh4" cx="40%" cy="30%" r="60%">
+            <stop offset="0%" stop-color="#d08870"/><stop offset="100%" stop-color="#904830"/>
+          </radialGradient>
+          <!-- 足グラデ -->
+          <radialGradient id="shLeg" cx="40%" cy="30%" r="65%">
+            <stop offset="0%" stop-color="#fde8c8"/><stop offset="100%" stop-color="#c8904a"/>
+          </radialGradient>
+          <!-- 影フィルタ -->
+          <filter id="shShadow">
+            <feDropShadow dx="1" dy="3" stdDeviation="3" flood-color="#a06030" flood-opacity="0.28"/>
+          </filter>
+        </defs>
+
+        <!-- ===== 足（後ろから） ===== -->
+        <!-- 左足 -->
+        <ellipse cx="42" cy="178" rx="14" ry="10" fill="url(#shLeg)" transform="rotate(-10 42 178)"/>
+        <ellipse cx="36" cy="184" rx="11" ry="7" fill="url(#shLeg)" transform="rotate(-15 36 184)"/>
+        <!-- 足裏パッド -->
+        <ellipse cx="35" cy="185" rx="7" ry="4.5" fill="#e8988a" opacity="0.7" transform="rotate(-15 35 185)"/>
+        <circle cx="30" cy="183" r="2" fill="#d07868" opacity="0.6"/>
+        <circle cx="35" cy="181" r="2" fill="#d07868" opacity="0.6"/>
+        <circle cx="40" cy="182" r="2" fill="#d07868" opacity="0.6"/>
+        <!-- 右足 -->
+        <ellipse cx="78" cy="178" rx="14" ry="10" fill="url(#shLeg)" transform="rotate(10 78 178)"/>
+        <ellipse cx="84" cy="184" rx="11" ry="7" fill="url(#shLeg)" transform="rotate(15 84 184)"/>
+        <ellipse cx="85" cy="185" rx="7" ry="4.5" fill="#e8988a" opacity="0.7" transform="rotate(15 85 185)"/>
+        <circle cx="80" cy="183" r="2" fill="#d07868" opacity="0.6"/>
+        <circle cx="85" cy="181" r="2" fill="#d07868" opacity="0.6"/>
+        <circle cx="90" cy="182" r="2" fill="#d07868" opacity="0.6"/>
+
+        <!-- ===== 体 ===== -->
+        <ellipse cx="60" cy="148" rx="30" ry="34" fill="url(#shBody)" filter="url(#shShadow)"/>
+        <!-- お腹の明るいパッチ -->
+        <ellipse cx="60" cy="152" rx="18" ry="22" fill="#fdf0e0" opacity="0.7"/>
+        <!-- 体の光沢 -->
+        <ellipse cx="50" cy="132" rx="10" ry="6" fill="rgba(255,255,255,0.28)" transform="rotate(-20 50 132)"/>
+        <!-- お腹のボタン風 -->
+        <circle cx="60" cy="158" r="3" fill="#e8b87a" stroke="#c8904a" stroke-width="1"/>
+        <circle cx="60" cy="158" r="1.2" fill="#c8904a"/>
+
+        <!-- ===== 腕（左） ===== -->
+        <!-- 上腕 -->
+        <ellipse cx="26" cy="138" rx="10" ry="14" fill="url(#shBody)" transform="rotate(-20 26 138)" filter="url(#shShadow)"/>
+        <!-- 前腕（ハの字に広げた感じ） -->
+        <ellipse cx="18" cy="152" rx="9" ry="12" fill="url(#shBody)" transform="rotate(-30 18 152)"/>
+        <!-- 手（丸いぬいぐるみ感） -->
+        <circle cx="12" cy="163" r="10" fill="url(#sh1)" filter="url(#shShadow)"/>
+        <!-- 手のパッド -->
+        <ellipse cx="12" cy="166" rx="7" ry="5" fill="#e8988a" opacity="0.65"/>
+        <circle cx="7"  cy="162" r="2.2" fill="#d07868" opacity="0.55"/>
+        <circle cx="12" cy="160" r="2.2" fill="#d07868" opacity="0.55"/>
+        <circle cx="17" cy="162" r="2.2" fill="#d07868" opacity="0.55"/>
+        <!-- 腕の縫い目風ライン -->
+        <path d="M28 130 Q20 142 14 158" stroke="rgba(160,100,50,0.18)" stroke-width="1.5" fill="none" stroke-dasharray="3,3"/>
+
+        <!-- ===== 腕（右） ===== -->
+        <ellipse cx="94" cy="138" rx="10" ry="14" fill="url(#shBody)" transform="rotate(20 94 138)" filter="url(#shShadow)"/>
+        <ellipse cx="102" cy="152" rx="9" ry="12" fill="url(#shBody)" transform="rotate(30 102 152)"/>
+        <circle cx="108" cy="163" r="10" fill="url(#sh1)" filter="url(#shShadow)"/>
+        <ellipse cx="108" cy="166" rx="7" ry="5" fill="#e8988a" opacity="0.65"/>
+        <circle cx="103" cy="162" r="2.2" fill="#d07868" opacity="0.55"/>
+        <circle cx="108" cy="160" r="2.2" fill="#d07868" opacity="0.55"/>
+        <circle cx="113" cy="162" r="2.2" fill="#d07868" opacity="0.55"/>
+        <path d="M92 130 Q100 142 106 158" stroke="rgba(160,100,50,0.18)" stroke-width="1.5" fill="none" stroke-dasharray="3,3"/>
+
+        <!-- ===== 首 ===== -->
+        <ellipse cx="60" cy="116" rx="16" ry="8" fill="url(#shBody)"/>
+
+        <!-- ===== 耳（左） ===== -->
+        <circle cx="36" cy="70" r="13" fill="url(#sh3)" filter="url(#shShadow)"/>
+        <circle cx="36" cy="70" r="8" fill="#e8988a"/>
+        <ellipse cx="33" cy="67" rx="3" ry="2" fill="rgba(255,255,255,0.4)"/>
+
+        <!-- ===== 耳（右） ===== -->
+        <circle cx="84" cy="70" r="13" fill="url(#sh3)" filter="url(#shShadow)"/>
+        <circle cx="84" cy="70" r="8" fill="#e8988a"/>
+        <ellipse cx="81" cy="67" rx="3" ry="2" fill="rgba(255,255,255,0.4)"/>
+
+        <!-- ===== 頭 ===== -->
+        <ellipse cx="60" cy="90" rx="28" ry="26" fill="url(#sh1)" filter="url(#shShadow)"/>
+        <!-- 頭の奥行き -->
+        <ellipse cx="66" cy="96" rx="18" ry="14" fill="rgba(150,90,30,0.1)"/>
+
+        <!-- ===== ベレー帽 ===== -->
+        <ellipse cx="60" cy="68" rx="30" ry="15" fill="url(#sh2)"/>
+        <ellipse cx="60" cy="64" rx="24" ry="12" fill="#e06878"/>
+        <ellipse cx="52" cy="60" rx="15" ry="6" fill="rgba(255,255,255,0.2)"/>
+        <!-- ポンポン -->
+        <circle cx="60" cy="55" r="7" fill="#f09098"/>
+        <circle cx="57" cy="53" r="2.8" fill="rgba(255,255,255,0.5)"/>
+        <!-- 格子 -->
+        <line x1="42" y1="62" x2="42" y2="78" stroke="rgba(180,60,70,0.25)" stroke-width="1.2"/>
+        <line x1="52" y1="57" x2="52" y2="78" stroke="rgba(180,60,70,0.25)" stroke-width="1.2"/>
+        <line x1="60" y1="55" x2="60" y2="79" stroke="rgba(180,60,70,0.25)" stroke-width="1.2"/>
+        <line x1="68" y1="57" x2="68" y2="78" stroke="rgba(180,60,70,0.25)" stroke-width="1.2"/>
+        <line x1="78" y1="62" x2="78" y2="78" stroke="rgba(180,60,70,0.25)" stroke-width="1.2"/>
+        <line x1="32" y1="69" x2="88" y2="69" stroke="rgba(180,60,70,0.25)" stroke-width="1.2"/>
+        <line x1="31" y1="74" x2="89" y2="74" stroke="rgba(180,60,70,0.25)" stroke-width="1.2"/>
+
+        <!-- ===== 顔パーツ ===== -->
+        <!-- マズル -->
+        <ellipse cx="60" cy="97" rx="16" ry="13" fill="#fdf0e0"/>
+        <ellipse cx="62" cy="100" rx="11" ry="9" fill="rgba(180,130,70,0.1)"/>
+        <!-- 鼻 -->
+        <ellipse cx="60" cy="91" rx="7" ry="5" fill="url(#sh4)"/>
+        <ellipse cx="57.5" cy="89.5" rx="2.5" ry="1.5" fill="rgba(255,255,255,0.38)"/>
+        <!-- 目 -->
+        <circle cx="48" cy="84" r="4" fill="#2a1a00"/>
+        <circle cx="72" cy="84" r="4" fill="#2a1a00"/>
+        <circle cx="46.5" cy="82.5" r="1.5" fill="white"/>
+        <circle cx="70.5" cy="82.5" r="1.5" fill="white"/>
+        <circle cx="50" cy="86" r="0.8" fill="rgba(255,255,255,0.5)"/>
+        <circle cx="74" cy="86" r="0.8" fill="rgba(255,255,255,0.5)"/>
+        <!-- チーク -->
+        <ellipse cx="40" cy="93" rx="9" ry="7" fill="#f4a0b0" opacity="0.85"/>
+        <ellipse cx="80" cy="93" rx="9" ry="7" fill="#f4a0b0" opacity="0.85"/>
+        <!-- 口 -->
+        <path d="M54 100 Q60 106 66 100" stroke="#b07048" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+        <circle cx="60" cy="100" r="1.2" fill="#b07048"/>
+        <!-- 頭光沢 -->
+        <ellipse cx="50" cy="76" rx="13" ry="7" fill="rgba(255,255,255,0.2)" transform="rotate(-15 50 76)"/>
+
+        <!-- ===== 縫い目（ぬいぐるみ感） ===== -->
+        <!-- 体中央縦縫い -->
+        <path d="M60 120 Q62 135 60 158 Q58 170 60 180" stroke="rgba(160,100,50,0.22)" stroke-width="1.2" fill="none" stroke-dasharray="4,3"/>
+        <!-- 体左側縫い -->
+        <path d="M35 135 Q32 150 35 168" stroke="rgba(160,100,50,0.18)" stroke-width="1" fill="none" stroke-dasharray="3,3"/>
+        <!-- 体右側縫い -->
+        <path d="M85 135 Q88 150 85 168" stroke="rgba(160,100,50,0.18)" stroke-width="1" fill="none" stroke-dasharray="3,3"/>
+      </svg>
+    </div>
+    <p class="spin-label" id="spinLabel">きもちを受け取っています… 🐻</p>
+    <div class="spin-progress-wrap">
+      <div class="spin-progress-bar" id="spinBar"></div>
+    </div>
+  </div>
+
+  <!-- 完了フェーズ -->
+  <div class="spin-finish-card" id="finishPhase">
+    <div class="finish-rainbow-wrap">
+      <canvas id="rainbowCanvas" width="320" height="200"></canvas>
+      <div class="finish-envelope">💌</div>
+    </div>
+    <div class="finish-msg-box">
+      <div class="finish-msg-text" id="finishMsgText"></div>
+      <div class="finish-label">— きもち、ちゃんと届いたよ 🐻🍓 —</div>
+    </div>
+    <button class="finish-close-btn" onclick="closeSpinOverlay()">戻る 🌸</button>
+  </div>
+
+</div>
+
+</body>
+</html>
